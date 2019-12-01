@@ -2,13 +2,17 @@
 #include "set.h"
 #include "amount_set.h"
 #include <stdlib.h>
+#include <string.h>
 
 struct productInformation_t {
-    MtmProductData customData;
-    MatamazomAmountType amountType;
-    unsigned int id;
-    char *name;
-    unsigned int total_income;
+  MtmProductData customData;
+  MtmCopyData copyData;
+  MtmFreeData freeData;
+  MtmGetProductPrice prodPrice;
+  MatamazomAmountType amountType;
+  unsigned int id;
+  char *name;
+  unsigned int total_income;
 };
 
 struct Matamazom_t {
@@ -16,8 +20,41 @@ struct Matamazom_t {
   AmountSet orders;
 };
 
-int compareProductsID(unsigned int product_id1, unsigned int product_id2) {
-    return product_id1 - product_id2;
+int compareProductsID(ASElement product_id1, ASElement product_id2) {
+  return (int) (((ProductInfo) product_id1)->id
+      - ((ProductInfo) product_id2)->id);
+}
+
+void freeProduct(ASElement product_info, MtmFreeData free_custom) {
+  if (product_info == NULL || free_custom == NULL) {
+    return;
+  }
+  free_custom(((ProductInfo) product_info)->customData);
+  free(((ProductInfo) product_info)->name);
+  free(((ProductInfo) product_info));
+}
+
+ProductInfo copyProductInfo(ASElement product_info) {
+  if (product_info == NULL) {
+    return NULL;
+  }
+  ProductInfo new_product_info = malloc(sizeof(*new_product_info));
+  if (new_product_info == NULL) {
+    return NULL;
+  }
+  new_product_info->customData =
+      ((ProductInfo) product_info)->
+          copyData(((ProductInfo) product_info)->customData);
+  new_product_info->amountType = ((ProductInfo) product_info)->amountType;
+  new_product_info->id = ((ProductInfo) product_info)->id;
+  new_product_info->name =
+      malloc(strlen(((ProductInfo) product_info)->name) + 1);
+  if (new_product_info->name == NULL) {
+    freeProduct(new_product_info, ((ProductInfo) product_info)->freeData);
+    return NULL;
+  }
+  new_product_info->total_income = ((ProductInfo) product_info)->total_income;
+  return new_product_info;
 }
 
 Matamazom matamazomCreate() {
@@ -25,27 +62,11 @@ Matamazom matamazomCreate() {
   if (new_warehouse == NULL) {
     return NULL;
   }
-  new_warehouse->products=asCreate()
-}
-
-ProductInfo copyProduct(ProductInfo info, MtmCopyData copy_costume) {
-    if (info == NULL || copy_costume == NULL) {
-        return NULL;
-    }
-    ProductInfo tmp;
-    tmp->customData = copy_costume(info);
-    tmp->amountType = info->amountType;
-    tmp->id = info->id;
-    tmp->name = info->name;
-    tmp->total_income = info->total_income;
-    return tmp;
-}
-
-void freeProduct(ProductInfo info, MtmFreeData free_costume) {
-    if (info == NULL || free_costume == NULL) {
-        return;
-    }
-    free_costume(info->customData);
-    free(info->name);
-    free(info);
+  new_warehouse->products = asCreate((ASElement) copyProductInfo,
+                                     (ASElement) freeProduct,
+                                     (ASElement) compareProductsID);
+  if (new_warehouse->products == NULL) {
+    free(new_warehouse);
+    return NULL;
+  }
 }
