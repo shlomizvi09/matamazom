@@ -14,7 +14,7 @@ int compareProductsID(unsigned int product_id1, unsigned int product_id2) {
   return product_id1 - product_id2;
 }
 
-Matamazom matamazomCreate(ProductInfo product){
+Matamazom matamazomCreate(){
 
 }
 
