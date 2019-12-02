@@ -36,6 +36,18 @@ void freeProduct(ASElement product_info, MtmFreeData free_custom) {
   free(((ProductInfo) product_info));
 }
 
+static bool isNameValid(char *name) {
+  return ((*name >= 'a' && *name <= 'z') || (*name >= 'A' && *name <= 'Z')
+      || (*name >= '0' && *name <= '9'));
+}
+
+static bool isAmountValid(const double amount,
+                          const MatamazomAmountType amountType) {
+  if (amount < 0) {
+    return false;
+  }
+}
+
 ProductInfo copyProductInfo(ASElement product_info) {
   if (product_info == NULL) {
     return NULL;
@@ -102,4 +114,24 @@ double amountVerifications(double amount, MatamazomAmountType type) {
         }
     }
     return -1;
+}
+
+void matamazomDestroy(Matamazom matamazom);
+
+MatamazomResult mtmNewProduct(Matamazom matamazom,
+                              const unsigned int id,
+                              const char *name,
+                              const double amount,
+                              const MatamazomAmountType amountType,
+                              const MtmProductData customData,
+                              MtmCopyData copyData,
+                              MtmFreeData freeData,
+                              MtmGetProductPrice prodPrice) {
+  if (matamazom == NULL || name == NULL || customData == NULL
+      || copyData == NULL || freeData == NULL || prodPrice == NULL) {
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  if (!isNameValid(name)) {
+    return MATAMAZOM_INVALID_NAME;
+  }
 }
