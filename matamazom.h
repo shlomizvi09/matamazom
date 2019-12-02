@@ -6,6 +6,7 @@
 
 typedef struct productInformation_t *ProductInfo;
 
+
 typedef enum MatamazomResult_t {
   MATAMAZOM_SUCCESS = 0,
   MATAMAZOM_NULL_ARGUMENT,
@@ -354,5 +355,8 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output);
 MatamazomResult mtmPrintFiltered(Matamazom matamazom,
                                  MtmFilterProduct customFilter,
                                  FILE *output);
+
+
+double amountVerifications(double amount, MatamazomAmountType type);
 
 #endif /* MATAMAZOM_H_ */

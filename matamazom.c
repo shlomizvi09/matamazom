@@ -5,6 +5,10 @@
 #include <string.h>
 #include <math.h>
 
+#define HALF 0.5
+#define RANGE 0.001
+#define INVALID_AMOUNT -1
+
 struct productInformation_t {
   MtmProductData customData;
   MtmCopyData copyData;
@@ -16,7 +20,6 @@ struct productInformation_t {
   unsigned int total_income;
 };
 
-double amountVerifications(double amount, MatamazomAmountType type);
 struct Matamazom_t {
   AmountSet products;
   AmountSet orders;
@@ -36,11 +39,10 @@ void freeProduct(ASElement product_info, MtmFreeData free_custom) {
   free(((ProductInfo) product_info));
 }
 
-static bool isNameValid(char *name) {
+static bool isNameValid(const char *name) {
   return ((*name >= 'a' && *name <= 'z') || (*name >= 'A' && *name <= 'Z')
       || (*name >= '0' && *name <= '9'));
 }
-
 
 ProductInfo copyProductInfo(ASElement product_info) {
   if (product_info == NULL) {
@@ -80,34 +82,34 @@ Matamazom matamazomCreate() {
 }
 
 double amountVerifications(double amount, MatamazomAmountType type) {
-    if (amount < 0) {
-        return -1;
+  if (amount < 0) {
+    return INVALID_AMOUNT;
+  }
+  if (type == MATAMAZOM_ANY_AMOUNT) {
+    return amount;
+  } else if (type == MATAMAZOM_INTEGER_AMOUNT) {
+    if ((fabs(amount - round(amount))) <= RANGE) {
+      return round(amount);
     }
-    if (type == MATAMAZOM_ANY_AMOUNT) {
-        return amount;
-    } else if (type == MATAMAZOM_INTEGER_AMOUNT) {
-        if ((fabs(amount - round(amount))) <= RANGE) {
-            return round(amount);
-        }
-        return -1;
-    } else if (type == MATAMAZOM_HALF_INTEGER_AMOUNT) {
-        if ((round(amount) - floor(amount)) == 0) {
-            if (fabs(amount - floor(amount) <= RANGE)) {
-                return floor(amount);
-            } else if (fabs(amount - floor(amount) - HALF <= RANGE)) {
-                return floor(amount) + HALF;
-            }
-            return -1;
-        } else if ((round(amount) - ceil(amount)) == 0) {
-            if (fabs(ceil(amount) - amount <= RANGE)) {
-                return ceil(amount);
-            } else if (fabs(ceil(amount - amount - HALF <= RANGE))) {
-                return (ceil(amount) - HALF);
-            }
-            return -1;
-        }
+    return INVALID_AMOUNT;
+  } else if (type == MATAMAZOM_HALF_INTEGER_AMOUNT) {
+    if ((round(amount) - floor(amount)) == 0) {
+      if (fabs(amount - floor(amount) <= RANGE)) {
+        return floor(amount);
+      } else if (fabs(amount - floor(amount) - HALF <= RANGE)) {
+        return floor(amount) + HALF;
+      }
+      return INVALID_AMOUNT;
+    } else if ((round(amount) - ceil(amount)) == 0) {
+      if (fabs(ceil(amount) - amount <= RANGE)) {
+        return ceil(amount);
+      } else if (fabs(ceil(amount - amount - HALF <= RANGE))) {
+        return (ceil(amount) - HALF);
+      }
+      return INVALID_AMOUNT;
     }
-    return -1;
+  }
+  return INVALID_AMOUNT;
 }
 
 void matamazomDestroy(Matamazom matamazom);
@@ -128,4 +130,40 @@ MatamazomResult mtmNewProduct(Matamazom matamazom,
   if (!isNameValid(name)) {
     return MATAMAZOM_INVALID_NAME;
   }
+  double temp_amount = amountVerifications(amount, amountType);
+  if (temp_amount == INVALID_AMOUNT) {
+    return MATAMAZOM_INVALID_AMOUNT;
+  }
+  ProductInfo new_product = malloc(sizeof(*new_product));
+  if (new_product == NULL) {
+    return MATAMAZOM_OUT_OF_MEMORY;
+  }
+  new_product->id = id;
+  new_product->copyData = copyData;
+  new_product->freeData = freeData;
+  new_product->prodPrice = prodPrice;
+  new_product->amountType = amountType;
+  new_product->customData = copyData(customData);
+  if (new_product->customData == NULL) {
+    free(new_product);
+    return MATAMAZOM_OUT_OF_MEMORY;
+  }
+  new_product->name = malloc(strlen(name) + 1);
+  if (new_product->name == NULL) {
+    new_product->freeData(new_product->customData);
+    free(new_product);
+    return MATAMAZOM_OUT_OF_MEMORY;
+  }
+  new_product->name = strcpy(new_product->name, name);
+
+  if (asContains(matamazom->products, new_product)) {
+    new_product->freeData(new_product->customData);
+    free(new_product->name);
+    free(new_product);
+    return MATAMAZOM_PRODUCT_ALREADY_EXIST;
+  }
+  asRegister(matamazom->products, new_product);
+  // TODO : need to check return value for asRegister ?
+  return mtmChangeProductAmount(matamazom, new_product->id, temp_amount);
 }
+
