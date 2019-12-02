@@ -41,12 +41,6 @@ static bool isNameValid(char *name) {
       || (*name >= '0' && *name <= '9'));
 }
 
-static bool isAmountValid(const double amount,
-                          const MatamazomAmountType amountType) {
-  if (amount < 0) {
-    return false;
-  }
-}
 
 ProductInfo copyProductInfo(ASElement product_info) {
   if (product_info == NULL) {
