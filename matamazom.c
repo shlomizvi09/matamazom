@@ -3,6 +3,7 @@
 #include "amount_set.h"
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 struct productInformation_t {
   MtmProductData customData;
@@ -32,6 +33,18 @@ void freeProduct(ASElement product_info, MtmFreeData free_custom) {
   free_custom(((ProductInfo) product_info)->customData);
   free(((ProductInfo) product_info)->name);
   free(((ProductInfo) product_info));
+}
+
+static bool isNameValid(char *name) {
+  return ((*name >= 'a' && *name <= 'z') || (*name >= 'A' && *name <= 'Z')
+      || (*name >= '0' && *name <= '9'));
+}
+
+static bool isAmountValid(const double amount,
+                          const MatamazomAmountType amountType) {
+  if (amount < 0) {
+    return false;
+  }
 }
 
 ProductInfo copyProductInfo(ASElement product_info) {
@@ -68,5 +81,25 @@ Matamazom matamazomCreate() {
   if (new_warehouse->products == NULL) {
     free(new_warehouse);
     return NULL;
+  }
+}
+
+void matamazomDestroy(Matamazom matamazom);
+
+MatamazomResult mtmNewProduct(Matamazom matamazom,
+                              const unsigned int id,
+                              const char *name,
+                              const double amount,
+                              const MatamazomAmountType amountType,
+                              const MtmProductData customData,
+                              MtmCopyData copyData,
+                              MtmFreeData freeData,
+                              MtmGetProductPrice prodPrice) {
+  if (matamazom == NULL || name == NULL || customData == NULL
+      || copyData == NULL || freeData == NULL || prodPrice == NULL) {
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  if (!isNameValid(name)) {
+    return MATAMAZOM_INVALID_NAME;
   }
 }
