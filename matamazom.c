@@ -167,3 +167,32 @@ MatamazomResult mtmNewProduct(Matamazom matamazom,
   return mtmChangeProductAmount(matamazom, new_product->id, temp_amount);
 }
 
+MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
+                                       const unsigned int id,
+                                       const double amount){
+    if(matamazom==NULL){
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    MatamazomResult result = asChangeAmount(matamazom,id,amount);
+    if(result==AS_NULL_ARGUMENT){
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    else if(result==AS_ITEM_DOES_NOT_EXIST){
+        return MATAMAZOM_PRODUCT_NOT_EXIST;
+    }
+
+    else if (result==AS_INSUFFICIENT_AMOUNT){
+        return MATAMAZOM_INSUFFICIENT_AMOUNT;
+    }
+    else if(result==AS_SUCCESS){
+        return MATAMAZOM_SUCCESS;
+    }
+}
+
+MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id){
+    if(matamazom==NULL){
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+
+}
+
