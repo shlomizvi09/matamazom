@@ -211,3 +211,15 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
   assert(result == AS_SUCCESS);
   return MATAMAZOM_SUCCESS;
 }
+
+MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id){
+    if(matamazom==NULL){
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    ProductInfo id_ptr=findProductInfo(matamazom,id);
+    if (id_ptr==NULL){
+        return MATAMAZOM_PRODUCT_NOT_EXIST;
+    }
+    freeProduct(id_ptr,id_ptr->freeData);
+    
+}
