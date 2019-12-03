@@ -21,6 +21,11 @@ typedef struct productInformation_t {
   unsigned int total_income;
 } *ProductInfo;
 
+typedef struct order_t {
+  AmountSet cart;
+  unsigned int order_id;
+} *Order;
+
 struct Matamazom_t {
   AmountSet products;
   AmountSet orders;
@@ -82,11 +87,11 @@ int compareProductsID(ASElement product_id1, ASElement product_id2) {
       - ((ProductInfo) product_id2)->id);
 }
 
-void freeProduct(ASElement product_info, MtmFreeData free_custom) {
-  if (product_info == NULL || free_custom == NULL) {
+void freeProduct(ASElement product_info) {
+  if (product_info == NULL) {
     return;
   }
-  free_custom(((ProductInfo) product_info)->customData);
+  ((ProductInfo) product_info)->freeData(((ProductInfo) product_info)->customData);
   free(((ProductInfo) product_info)->name);
   free(((ProductInfo) product_info));
 }
@@ -107,7 +112,7 @@ ProductInfo copyProductInfo(ASElement product_info) {
   new_product_info->name =
       malloc(strlen(((ProductInfo) product_info)->name) + 1);
   if (new_product_info->name == NULL) {
-    freeProduct(new_product_info, ((ProductInfo) product_info)->freeData);
+    freeProduct(new_product_info);
     return NULL;
   }
   new_product_info->total_income = ((ProductInfo) product_info)->total_income;
@@ -220,9 +225,6 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
   if (id_ptr == NULL) {
     return MATAMAZOM_PRODUCT_NOT_EXIST;
   }
-  freeProduct(id_ptr, id_ptr->freeData);
-
+  freeProduct(id_ptr);
 }
-
-
 
