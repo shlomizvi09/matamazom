@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
-struct node_t {
+typedef struct node_t {
   ASElement element;
   double amount;
   struct node_t *next;
-};
+} *Node;
 struct AmountSet_t {
   CopyASElement as_copy;
   FreeASElement as_free;

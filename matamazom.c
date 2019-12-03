@@ -10,7 +10,7 @@
 #define RANGE 0.001
 #define INVALID_AMOUNT -1
 
-struct productInformation_t {
+typedef struct productInformation_t {
   MtmProductData customData;
   MtmCopyData copyData;
   MtmFreeData freeData;
@@ -19,7 +19,7 @@ struct productInformation_t {
   unsigned int id;
   char *name;
   unsigned int total_income;
-};
+} *ProductInfo;
 
 struct Matamazom_t {
   AmountSet products;
