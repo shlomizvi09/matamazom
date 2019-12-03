@@ -357,6 +357,6 @@ MatamazomResult mtmPrintFiltered(Matamazom matamazom,
                                  FILE *output);
 
 
-double amountVerifications(double amount, MatamazomAmountType type);
+
 
 #endif /* MATAMAZOM_H_ */

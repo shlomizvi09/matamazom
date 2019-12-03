@@ -14,20 +14,7 @@ struct AmountSet_t {
   Node head;
   Node iterator;
 };
-
-Node getElementNodePtr(AmountSet set, ASElement element) {
-  if (set == NULL || element == NULL) {
-    return NULL;
-  }
-  Node node_ptr = set->head->next;
-  while (node_ptr != NULL) {
-    if (set->as_compare(node_ptr->element, element) == 0) {
-      return node_ptr;
-    }
-    node_ptr = node_ptr->next;
-  }
-  return NULL;
-}
+static Node getElementNodePtr(AmountSet set, ASElement element);
 
 AmountSet asCreate(CopyASElement copyElement,
                    FreeASElement freeElement,
@@ -250,4 +237,18 @@ ASElement asGetNext(AmountSet set) {
     return NULL;
   }
   return set->iterator->element;
+}
+
+static Node getElementNodePtr(AmountSet set, ASElement element) {
+  if (set == NULL || element == NULL) {
+    return NULL;
+  }
+  Node node_ptr = set->head->next;
+  while (node_ptr != NULL) {
+    if (set->as_compare(node_ptr->element, element) == 0) {
+      return node_ptr;
+    }
+    node_ptr = node_ptr->next;
+  }
+  return NULL;
 }
