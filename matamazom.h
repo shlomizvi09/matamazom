@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-typedef struct productInformation_t *ProductInfo;
-
 
 typedef enum MatamazomResult_t {
   MATAMAZOM_SUCCESS = 0,

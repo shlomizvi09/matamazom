@@ -10,7 +10,7 @@
 #define RANGE 0.001
 #define INVALID_AMOUNT -1
 
-struct productInformation_t {
+typedef struct productInformation_t {
   MtmProductData customData;
   MtmCopyData copyData;
   MtmFreeData freeData;
@@ -19,12 +19,17 @@ struct productInformation_t {
   unsigned int id;
   char *name;
   unsigned int total_income;
-};
+}ProductInfo;
 
 struct Matamazom_t {
   AmountSet products;
   AmountSet orders;
 };
+
+typedef struct order_t{
+    AmountSet cart;
+    unsigned int order_id;
+}Order;
 
 static ProductInfo findProductInfo(Matamazom matamazom, unsigned int id) {
   ASElement iterator = asGetFirst(matamazom->products);
@@ -216,10 +221,17 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id){
     if(matamazom==NULL){
         return MATAMAZOM_NULL_ARGUMENT;
     }
-    ProductInfo id_ptr=findProductInfo(matamazom,id);
-    if (id_ptr==NULL){
+    ProductInfo product_info_ptr=findProductInfo(matamazom, id);
+    AmountSetResult result=asDelete(matamazom->products, product_info_ptr);
+    product_info_ptr->freeData(product_info_ptr->customData);
+    free(product_info_ptr->name);
+    if(result==AS_NULL_ARGUMENT){
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    else if(result==AS_ITEM_DOES_NOT_EXIST){
         return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
-    freeProduct(id_ptr,id_ptr->freeData);
-    
+    else if(result==AS_SUCCESS){
+        return MATAMAZOM_SUCCESS;
+    }
 }
