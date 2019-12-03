@@ -193,15 +193,21 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
   if (product_info == NULL) {
     return MATAMAZOM_PRODUCT_NOT_EXIST;
   }
+  double fixed_amount = amountVerifications(amount, product_info->amountType);
+  if (fixed_amount == INVALID_AMOUNT) {
+    return MATAMAZOM_INVALID_AMOUNT;
+  }
   AmountSetResult
       result = asChangeAmount(matamazom->products, product_info, amount);
-  if (result==AS_NULL_ARGUMENT){
+  if (result == AS_NULL_ARGUMENT) {
     return MATAMAZOM_NULL_ARGUMENT;
   }
-  if(result==AS_ITEM_DOES_NOT_EXIST){
+  if (result == AS_ITEM_DOES_NOT_EXIST) {
     return MATAMAZOM_PRODUCT_NOT_EXIST;
   }
-  if(result==AS_INSUFFICIENT_AMOUNT){
-
+  if (result == AS_INSUFFICIENT_AMOUNT) {
+    MATAMAZOM_INSUFFICIENT_AMOUNT;
   }
+  assert(result == AS_SUCCESS);
+  return MATAMAZOM_SUCCESS;
 }
