@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-
 typedef enum MatamazomResult_t {
   MATAMAZOM_SUCCESS = 0,
   MATAMAZOM_NULL_ARGUMENT,
@@ -19,13 +18,13 @@ typedef enum MatamazomResult_t {
 
 /** Type for specifying what is a valid amount for a product.
  * For a MATAMAZOM_INTEGER_AMOUNT product, a valid amount is an amount which is
- * within 0.001 of an integer. For example, 8.001 or 7.999 are considered a valid amount 
+ * within 0.001 of an integer. For example, 8.001 or 7.999 are considered a valid amount
  * for MATAMAZOM_INTEGER_AMOUNT, but 8.0011 or 7.9989 are not.
- * 
+ *
  * For a MATAMAZOM_HALF_INTEGER_AMOUNT product, a valid amount is an amount which is
  * within 0.001 of a half-integer. For example, 8.001 is valid and 8.0011 is not valid,
  * but also 8.501 is valid and 8.5011 is not valid.
- * 
+ *
  * For MATAMAZOM_ANY_AMOUNT, any amount is valid. For example, this is suitable for
  * products which are measured by weight.
  */
@@ -98,10 +97,7 @@ typedef double (*MtmGetProductPrice)(MtmProductData, const double amount);
  * }
  * @endcode
  */
-typedef bool(*MtmFilterProduct)(const unsigned int id,
-                                const char *name,
-                                const double amount,
-                                MtmProductData customData);
+typedef bool (*MtmFilterProduct)(const unsigned int id, const char *name, const double amount, MtmProductData customData);
 
 /**
  * matamazomCreate: create an empty Matamazom warehouse.
@@ -129,10 +125,10 @@ void matamazomDestroy(Matamazom matamazom);
  * @param amount - the initial amount of the product when added to the warehouse.
  * @param amountType - defines what are valid amounts for this product.
  * @param customData - pointer to product's additional data
- * @param copyData - function pointer to be used for copying product's additional 
+ * @param copyData - function pointer to be used for copying product's additional
  *      data.
  * @param freeData - function pointer to be used for free product data.
- * @param prodPrice - function pointer to be used for getting the price of some 
+ * @param prodPrice - function pointer to be used for getting the price of some
  *      product.
  * @return
  *     MATAMAZOM_NULL_ARGUMENT - if matamazom/name/customData/copyData/freeData
@@ -144,15 +140,10 @@ void matamazomDestroy(Matamazom matamazom);
  *     MATAMAZOM_PRODUCT_ALREADY_EXIST - if a product with the given id already exist.
  *     MATAMAZOM_SUCCESS - if product was added successfully.
  */
-MatamazomResult mtmNewProduct(Matamazom matamazom,
-                              const unsigned int id,
-                              const char *name,
-                              const double amount,
-                              const MatamazomAmountType amountType,
-                              const MtmProductData customData,
-                              MtmCopyData copyData,
-                              MtmFreeData freeData,
-                              MtmGetProductPrice prodPrice);
+MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const char *name,
+                              const double amount, const MatamazomAmountType amountType,
+                              const MtmProductData customData, MtmCopyData copyData,
+                              MtmFreeData freeData, MtmGetProductPrice prodPrice);
 /**
  * mtmChangeProductAmount: increase or decrease the amount of an *existing* product in a Matamazom warehouse.
  * if 'amount' < 0 then this amount should be decreased from the matamazom warehouse.
@@ -163,7 +154,7 @@ MatamazomResult mtmNewProduct(Matamazom matamazom,
  * warehouse, then the product's amount is not changed, and a proper error-code
  * is returned.
  * If the amount is equal to the product's amount in the
- * warehouse,then the product will remain inside the warehouse 
+ * warehouse,then the product will remain inside the warehouse
  * with amount of zero.
  *
  * @param matamazom - warehouse to add the product to. Must be non-NULL.
@@ -182,9 +173,7 @@ MatamazomResult mtmNewProduct(Matamazom matamazom,
  *    error code is returned if one of the parameters is invalid, and MATAMAZOM_SUCCESS
  *    is returned if all the parameters are valid.
  */
-MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
-                                       const unsigned int id,
-                                       const double amount);
+MatamazomResult mtmChangeProductAmount(Matamazom matamazom, const unsigned int id, const double amount);
 
 /**
  * mtmClearProduct: clear a product from a Matamazom warehouse.
@@ -245,17 +234,15 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom);
  *    error code is returned if one of the parameters is invalid, and MATAMAZOM_SUCCESS
  *    is returned if all the parameters are valid.
  */
-MatamazomResult mtmChangeProductAmountInOrder(Matamazom,
-                                              const unsigned int orderId,
-                                              const unsigned int productId,
-                                              const double amount);
+MatamazomResult mtmChangeProductAmountInOrder(Matamazom, const unsigned int orderId,
+                                              const unsigned int productId, const double amount);
 
 /**
  * mtmShipOrder: ship an order and remove it from a Matamazom warehouse.
  *
  * All products in the order are removed from the warehouse, and the order is
  * deleted. The amount of each product in the order is the amount of the product
- * that is removed from the warehouse. additionally once order is shipped 
+ * that is removed from the warehouse. additionally once order is shipped
  * the profit from the products shipped needs to be updated
  *
  * If the order cannot be shipped for any reason, e.g. some product's amount in
@@ -318,9 +305,7 @@ MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output);
  *         the given orderId.
  *     MATAMAZOM_SUCCESS - if printed successfully.
  */
-MatamazomResult mtmPrintOrder(Matamazom matamazom,
-                              const unsigned int orderId,
-                              FILE *output);
+MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, FILE *output);
 
 /**
  * mtmPrintBestSelling: print the best selling products of a Matamazom
@@ -339,9 +324,9 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output);
  * a custom filter, as explained in the *.pdf.
  *
  * Please note: This function filter only products that are inside the warehouses inventory.
- * I.e. this function should not care about what is happening inside the orders or the 'income' 
+ * I.e. this function should not care about what is happening inside the orders or the 'income'
  * mechanism.
- * 
+ *
  * @param matamazom - a Matamazom warehouse.
  * @param customFilter - a boolean function that receives a product's information and
  *     returns true if it should be printed.
@@ -350,11 +335,6 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output);
  *     MATAMAZOM_NULL_ARGUMENT - if a NULL argument is passed.
  *     MATAMAZOM_SUCCESS - if printed successfully.
  */
-MatamazomResult mtmPrintFiltered(Matamazom matamazom,
-                                 MtmFilterProduct customFilter,
-                                 FILE *output);
-
-
-
+MatamazomResult mtmPrintFiltered(Matamazom matamazom, MtmFilterProduct customFilter, FILE *output);
 
 #endif /* MATAMAZOM_H_ */
