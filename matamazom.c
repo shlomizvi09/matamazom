@@ -10,7 +10,7 @@
 #define RANGE 0.001
 #define INVALID_AMOUNT -1
 
-typedef struct productInformation_t {
+struct productInformation_t {
   MtmProductData customData;
   MtmCopyData copyData;
   MtmFreeData freeData;
@@ -19,17 +19,43 @@ typedef struct productInformation_t {
   unsigned int id;
   char *name;
   unsigned int total_income;
-}ProductInfo;
+};
 
 struct Matamazom_t {
   AmountSet products;
   AmountSet orders;
 };
 
-typedef struct order_t{
-    AmountSet cart;
-    unsigned int order_id;
-}Order;
+static double amountVerifications(double amount, MatamazomAmountType type) {
+  if (amount < 0) {
+    return INVALID_AMOUNT;
+  }
+  if (type == MATAMAZOM_ANY_AMOUNT) {
+    return amount;
+  } else if (type == MATAMAZOM_INTEGER_AMOUNT) {
+    if ((fabs(amount - round(amount))) <= RANGE) {
+      return round(amount);
+    }
+    return INVALID_AMOUNT;
+  } else if (type == MATAMAZOM_HALF_INTEGER_AMOUNT) {
+    if ((round(amount) - floor(amount)) == 0) {
+      if (fabs(amount - floor(amount) <= RANGE)) {
+        return floor(amount);
+      } else if (fabs(amount - floor(amount) - HALF <= RANGE)) {
+        return floor(amount) + HALF;
+      }
+      return INVALID_AMOUNT;
+    } else if ((round(amount) - ceil(amount)) == 0) {
+      if (fabs(ceil(amount) - amount <= RANGE)) {
+        return ceil(amount);
+      } else if (fabs(ceil(amount - amount - HALF <= RANGE))) {
+        return (ceil(amount) - HALF);
+      }
+      return INVALID_AMOUNT;
+    }
+  }
+  return INVALID_AMOUNT;
+}
 
 static ProductInfo findProductInfo(Matamazom matamazom, unsigned int id) {
   ASElement iterator = asGetFirst(matamazom->products);
@@ -46,6 +72,11 @@ static ProductInfo findProductInfo(Matamazom matamazom, unsigned int id) {
   return iterator;
 }
 
+static bool isNameValid(const char *name) {
+  return ((*name >= 'a' && *name <= 'z') || (*name >= 'A' && *name <= 'Z')
+      || (*name >= '0' && *name <= '9'));
+}
+
 int compareProductsID(ASElement product_id1, ASElement product_id2) {
   return (int) (((ProductInfo) product_id1)->id
       - ((ProductInfo) product_id2)->id);
@@ -58,11 +89,6 @@ void freeProduct(ASElement product_info, MtmFreeData free_custom) {
   free_custom(((ProductInfo) product_info)->customData);
   free(((ProductInfo) product_info)->name);
   free(((ProductInfo) product_info));
-}
-
-static bool isNameValid(const char *name) {
-  return ((*name >= 'a' && *name <= 'z') || (*name >= 'A' && *name <= 'Z')
-      || (*name >= '0' && *name <= '9'));
 }
 
 ProductInfo copyProductInfo(ASElement product_info) {
@@ -100,37 +126,6 @@ Matamazom matamazomCreate() {
     free(new_warehouse);
     return NULL;
   }
-}
-
-double amountVerifications(double amount, MatamazomAmountType type) {
-  if (amount < 0) {
-    return INVALID_AMOUNT;
-  }
-  if (type == MATAMAZOM_ANY_AMOUNT) {
-    return amount;
-  } else if (type == MATAMAZOM_INTEGER_AMOUNT) {
-    if ((fabs(amount - round(amount))) <= RANGE) {
-      return round(amount);
-    }
-    return INVALID_AMOUNT;
-  } else if (type == MATAMAZOM_HALF_INTEGER_AMOUNT) {
-    if ((round(amount) - floor(amount)) == 0) {
-      if (fabs(amount - floor(amount) <= RANGE)) {
-        return floor(amount);
-      } else if (fabs(amount - floor(amount) - HALF <= RANGE)) {
-        return floor(amount) + HALF;
-      }
-      return INVALID_AMOUNT;
-    } else if ((round(amount) - ceil(amount)) == 0) {
-      if (fabs(ceil(amount) - amount <= RANGE)) {
-        return ceil(amount);
-      } else if (fabs(ceil(amount - amount - HALF <= RANGE))) {
-        return (ceil(amount) - HALF);
-      }
-      return INVALID_AMOUNT;
-    }
-  }
-  return INVALID_AMOUNT;
 }
 
 void matamazomDestroy(Matamazom matamazom);
@@ -217,21 +212,14 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
   return MATAMAZOM_SUCCESS;
 }
 
-MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id){
-    if(matamazom==NULL){
-        return MATAMAZOM_NULL_ARGUMENT;
-    }
-    ProductInfo product_info_ptr=findProductInfo(matamazom, id);
-    AmountSetResult result=asDelete(matamazom->products, product_info_ptr);
-    product_info_ptr->freeData(product_info_ptr->customData);
-    free(product_info_ptr->name);
-    if(result==AS_NULL_ARGUMENT){
-        return MATAMAZOM_NULL_ARGUMENT;
-    }
-    else if(result==AS_ITEM_DOES_NOT_EXIST){
-        return MATAMAZOM_PRODUCT_NOT_EXIST;
-    }
-    else if(result==AS_SUCCESS){
-        return MATAMAZOM_SUCCESS;
-    }
+MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
+  if (matamazom == NULL) {
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  ProductInfo id_ptr = findProductInfo(matamazom, id);
+  if (id_ptr == NULL) {
+    return MATAMAZOM_PRODUCT_NOT_EXIST;
+  }
+  freeProduct(id_ptr, id_ptr->freeData);
+
 }

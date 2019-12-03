@@ -268,7 +268,7 @@ ASElement asGetNext(AmountSet set);
         iterator ;                               \
         iterator = asGetNext(set))
 
-Node getElementNodePtr(AmountSet set, ASElement element);
+
 
 #endif /* AMOUNT_SET_H_ */
 
