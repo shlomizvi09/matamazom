@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 
 #define HALF 0.5
 #define RANGE 0.001
@@ -24,6 +25,21 @@ struct Matamazom_t {
   AmountSet products;
   AmountSet orders;
 };
+
+static ProductInfo findProductInfo(Matamazom matamazom, unsigned int id) {
+  ASElement iterator = asGetFirst(matamazom->products);
+  if (iterator == NULL) {
+    return NULL;
+  }
+  while (((ProductInfo) iterator)->id != id) {
+    iterator = asGetNext(matamazom->products);
+    if (iterator == NULL) {
+      return NULL;
+    }
+  }
+  asGetFirst(matamazom->products); //product's iterator back to start
+  return iterator;
+}
 
 int compareProductsID(ASElement product_id1, ASElement product_id2) {
   return (int) (((ProductInfo) product_id1)->id
@@ -169,30 +185,23 @@ MatamazomResult mtmNewProduct(Matamazom matamazom,
 
 MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
                                        const unsigned int id,
-                                       const double amount){
-    if(matamazom==NULL){
-        return MATAMAZOM_NULL_ARGUMENT;
-    }
-    MatamazomResult result = asChangeAmount(matamazom,id,amount);
-    if(result==AS_NULL_ARGUMENT){
-        return MATAMAZOM_NULL_ARGUMENT;
-    }
-    else if(result==AS_ITEM_DOES_NOT_EXIST){
-        return MATAMAZOM_PRODUCT_NOT_EXIST;
-    }
+                                       const double amount) {
+  if (matamazom == NULL) {
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  ProductInfo product_info = findProductInfo(matamazom, id);
+  if (product_info == NULL) {
+    return MATAMAZOM_PRODUCT_NOT_EXIST;
+  }
+  AmountSetResult
+      result = asChangeAmount(matamazom->products, product_info, amount);
+  if (result==AS_NULL_ARGUMENT){
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  if(result==AS_ITEM_DOES_NOT_EXIST){
+    return MATAMAZOM_PRODUCT_NOT_EXIST;
+  }
+  if(result==AS_INSUFFICIENT_AMOUNT){
 
-    else if (result==AS_INSUFFICIENT_AMOUNT){
-        return MATAMAZOM_INSUFFICIENT_AMOUNT;
-    }
-    else if(result==AS_SUCCESS){
-        return MATAMAZOM_SUCCESS;
-    }
+  }
 }
-
-MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id){
-    if(matamazom==NULL){
-        return MATAMAZOM_NULL_ARGUMENT;
-    }
-
-}
-

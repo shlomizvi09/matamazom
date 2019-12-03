@@ -2,20 +2,20 @@
 #include <stdlib.h>
 #include <assert.h>
 
-typedef struct node_t {
+struct node_t {
   ASElement element;
   double amount;
   struct node_t *next;
-} *Node;
+};
 struct AmountSet_t {
   CopyASElement as_copy;
   FreeASElement as_free;
   CompareASElements as_compare;
   Node head;
   Node iterator;
-} ;
+};
 
-static Node getElementNodePtr(AmountSet set, ASElement element) {
+Node getElementNodePtr(AmountSet set, ASElement element) {
   if (set == NULL || element == NULL) {
     return NULL;
   }

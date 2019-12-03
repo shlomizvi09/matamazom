@@ -34,6 +34,7 @@
 
 /** Type for defining the set */
 typedef struct AmountSet_t *AmountSet;
+typedef struct node_t *Node;
 
 /** Type used for returning error codes from amount set functions */
 typedef enum AmountSetResult_t {
@@ -154,7 +155,9 @@ bool asContains(AmountSet set, ASElement element);
  * }
  * @endcode
  */
-AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount);
+AmountSetResult asGetAmount(AmountSet set,
+                            ASElement element,
+                            double *outAmount);
 
 /**
  * asRegister: Add a new element into the set.
@@ -195,7 +198,9 @@ AmountSetResult asRegister(AmountSet set, ASElement element);
  *     and AS_SUCCESS is returned if element exists in set (assuming set is not
  *     NULL).
  */
-AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double amount);
+AmountSetResult asChangeAmount(AmountSet set,
+                               ASElement element,
+                               const double amount);
 
 /**
  * asDelete: Delete an element completely from the set.
@@ -263,6 +268,7 @@ ASElement asGetNext(AmountSet set);
         iterator ;                               \
         iterator = asGetNext(set))
 
+Node getElementNodePtr(AmountSet set, ASElement element);
 
 #endif /* AMOUNT_SET_H_ */
 
