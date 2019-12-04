@@ -1,5 +1,5 @@
 #include "matamazom.h"
-#include "set.h"
+#include "list.h"
 #include "amount_set.h"
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +28,7 @@ typedef struct order_t {
 
 struct Matamazom_t {
   AmountSet products;
-  AmountSet orders;
+  List orders;
 };
 
 static double amountVerifications(double amount, MatamazomAmountType type) {
@@ -86,6 +86,9 @@ int compareProductsID(ASElement product_id1, ASElement product_id2) {
   return (int) (((ProductInfo) product_id1)->id
       - ((ProductInfo) product_id2)->id);
 }
+int compareOrdersID(Order order_1, Order order_2) {
+  return ((int) (order_1->order_id) - (int) (order_2->order_id));
+}
 
 void freeProduct(ASElement product_info) {
   if (product_info == NULL) {
@@ -95,8 +98,14 @@ void freeProduct(ASElement product_info) {
   free(((ProductInfo) product_info)->name);
   free(((ProductInfo) product_info));
 }
+void freeOrders(Order order) {
+  if (order == NULL) {
+    return;
+  }
+  asDestroy(order->cart);
+}
 
-ProductInfo copyProductInfo(ASElement product_info) {
+ASElement copyProductInfo(ASElement product_info) {
   if (product_info == NULL) {
     return NULL;
   }
@@ -124,13 +133,14 @@ Matamazom matamazomCreate() {
   if (new_warehouse == NULL) {
     return NULL;
   }
-  new_warehouse->products = asCreate((ASElement) copyProductInfo,
-                                     (ASElement) freeProduct,
-                                     (ASElement) compareProductsID);
+  new_warehouse->products =
+      asCreate(copyProductInfo, freeProduct, compareProductsID);
   if (new_warehouse->products == NULL) {
     free(new_warehouse);
     return NULL;
   }
+  new_warehouse->orders = listCreate()
+
 }
 
 void matamazomDestroy(Matamazom matamazom);
