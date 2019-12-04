@@ -103,6 +103,7 @@ void freeOrders(Order order) {
     return;
   }
   asDestroy(order->cart);
+  free(order);
 }
 
 ASElement copyProductInfo(ASElement product_info) {
@@ -156,7 +157,6 @@ Matamazom matamazomCreate() {
     free(new_warehouse);
     return NULL;
   }
-
 
   new_warehouse->orders = listCreate()
 
@@ -212,9 +212,28 @@ MatamazomResult mtmNewProduct(Matamazom matamazom,
     free(new_product);
     return MATAMAZOM_PRODUCT_ALREADY_EXIST;
   }
-  asRegister(matamazom->products, new_product);
-  // TODO : need to check return value for asRegister ?
-  return mtmChangeProductAmount(matamazom, new_product->id, temp_amount);
+  AmountSetResult result = asRegister(matamazom->products, new_product);
+  if (result == AS_NULL_ARGUMENT) {
+    new_product->freeData(new_product->customData);
+    free(new_product->name);
+    free(new_product);
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  if (result == AS_OUT_OF_MEMORY) {
+    new_product->freeData(new_product->customData);
+    free(new_product->name);
+    free(new_product);
+    return MATAMAZOM_OUT_OF_MEMORY;
+  }
+  MatamazomResult change_amount_result =
+      mtmChangeProductAmount(matamazom, new_product->id, temp_amount);
+  if (change_amount_result == MATAMAZOM_NULL_ARGUMENT) {
+    new_product->freeData(new_product->customData);
+    free(new_product->name);
+    free(new_product);
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  return MATAMAZOM_SUCCESS;
 }
 
 MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
