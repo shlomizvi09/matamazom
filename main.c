@@ -39,7 +39,7 @@ static double amountVerifications(double amount, MatamazomAmountType type) {
 }
 
 int main() {
-    printf("amount is %f",amountVerifications(123.7484,
-            MATAMAZOM_ANY_AMOUNT));
+    printf("amount is %f",amountVerifications(123.3,
+            MATAMAZOM_HALF_INTEGER_AMOUNT));
   return 0;
 }
