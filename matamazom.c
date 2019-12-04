@@ -105,27 +105,45 @@ void freeOrders(Order order) {
   asDestroy(order->cart);
 }
 
-ASElement copyProductInfo(ASElement product_info) {
-  if (product_info == NULL) {
+ASElement copyProductInfo(ASElement element) {
+  if (element == NULL) {
     return NULL;
   }
+  ProductInfo product_info = (ProductInfo) element;
   ProductInfo new_product_info = malloc(sizeof(*new_product_info));
   if (new_product_info == NULL) {
     return NULL;
   }
   new_product_info->customData =
-      ((ProductInfo) product_info)->
-          copyData(((ProductInfo) product_info)->customData);
-  new_product_info->amountType = ((ProductInfo) product_info)->amountType;
-  new_product_info->id = ((ProductInfo) product_info)->id;
+      product_info->
+          copyData(product_info->customData);
+  new_product_info->amountType = product_info->amountType;
+  new_product_info->id = product_info->id;
   new_product_info->name =
-      malloc(strlen(((ProductInfo) product_info)->name) + 1);
+      malloc(strlen((product_info->name)) + 1);
   if (new_product_info->name == NULL) {
     freeProduct(new_product_info);
     return NULL;
   }
-  new_product_info->total_income = ((ProductInfo) product_info)->total_income;
+  new_product_info->total_income = product_info->total_income;
   return new_product_info;
+}
+ListElement copyOrder(ListElement element) {
+  if (element == NULL) {
+    return NULL;
+  }
+  Order order = (Order) element;
+  Order new_order = malloc(sizeof(*new_order));
+  if (new_order == NULL) {
+    return NULL;
+  }
+  new_order->cart = asCopy(order->cart);
+  if (new_order->cart == NULL) {
+    free(new_order);
+    return NULL;
+  }
+  new_order->order_id = order->order_id;
+  return new_order;
 }
 
 Matamazom matamazomCreate() {
@@ -139,6 +157,8 @@ Matamazom matamazomCreate() {
     free(new_warehouse);
     return NULL;
   }
+
+
   new_warehouse->orders = listCreate()
 
 }
