@@ -44,7 +44,7 @@ void asDestroy(AmountSet set) {
   if (set == NULL) {
     return;
   }
-  Node temp_ptr = set->head;
+  Node temp_ptr = NULL;
   Node temp_ptr2 = set->head->next;
   while (temp_ptr2 != NULL) {
     assert(temp_ptr2 != set->head);
@@ -116,15 +116,17 @@ AmountSet asCopy(AmountSet set) {
   }
   Node node_ptr_copy_from = set->head->next;
   while (node_ptr_copy_from != NULL) {
+    // TODO : need to use as_copy !!!!!
+    ASElement copy_of_ASElement = set->as_copy(node_ptr_copy_from->element);
     AmountSetResult result = asRegister(new_set,
-                                        node_ptr_copy_from->element);
+                                        copy_of_ASElement);
     if (result == AS_NULL_ARGUMENT) {
       asDestroy(new_set);
       return NULL; // if element is NULL it's an error?
     }
     Node node_ptr_copy_to =
         getElementNodePtr(new_set,
-                          node_ptr_copy_from->element);// TODO : if getElement return NULL ?
+                          copy_of_ASElement);// TODO : if getElement return NULL ?
 
     assert(node_ptr_copy_to != NULL && node_ptr_copy_to->next == NULL);
     node_ptr_copy_to->amount = node_ptr_copy_from->amount;
