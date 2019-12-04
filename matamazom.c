@@ -98,10 +98,11 @@ void freeProduct(ASElement product_info) {
   free(((ProductInfo) product_info)->name);
   free(((ProductInfo) product_info));
 }
-void freeOrders(Order order) {
-  if (order == NULL) {
+void freeOrders(ListElement element) {
+  if (element == NULL) {
     return;
   }
+  Order order = (Order) element;
   asDestroy(order->cart);
   free(order);
 }
@@ -158,11 +159,27 @@ Matamazom matamazomCreate() {
     return NULL;
   }
 
-  new_warehouse->orders = listCreate()
-
+  new_warehouse->orders = listCreate(copyOrder, freeOrders);
+  if (new_warehouse->orders == NULL) {
+    asDestroy(new_warehouse->products);
+    free(new_warehouse);
+    return NULL;
+  }
+  return new_warehouse;
 }
 
-void matamazomDestroy(Matamazom matamazom);
+void matamazomDestroy(Matamazom matamazom) {
+  if (matamazom == NULL) {
+    return;
+  }
+  if (matamazom->products != NULL) {
+    asDestroy(matamazom->products);
+  }
+  if (matamazom->orders != NULL) {
+    listDestroy(matamazom->orders);
+  }
+  free(matamazom);
+}
 
 MatamazomResult mtmNewProduct(Matamazom matamazom,
                               const unsigned int id,
@@ -276,3 +293,9 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
   freeProduct(id_ptr);
 }
 
+unsigned int mtmCreateNewOrder(Matamazom matamazom) {
+  if (matamazom == NULL) {
+    return 0;
+  }
+
+}

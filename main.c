@@ -7,5 +7,6 @@
 #define RANGE 0.001
 
 int main() {
+
   return 0;
 }
