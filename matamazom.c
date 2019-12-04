@@ -274,5 +274,8 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
     return MATAMAZOM_PRODUCT_NOT_EXIST;
   }
   freeProduct(id_ptr);
+  LIST_FOREACH(Order,element,matamazom->orders){
+
+  }
 }
 
