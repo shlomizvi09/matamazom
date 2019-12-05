@@ -55,35 +55,34 @@ static Order getOrder(Matamazom matamazom, const unsigned int orderId) {
     return NULL;
 }
 
-static double amountVerifications(double amount, MatamazomAmountType type) {
-    if (amount < 0) {
-        return INVALID_AMOUNT;
-    }
+static bool amountVerifications(double amount_to_change, MatamazomAmountType
+type) {
+    double amount = fabs(amount_to_change);
     if (type == MATAMAZOM_ANY_AMOUNT) {
-        return amount;
+        return true;
     } else if (type == MATAMAZOM_INTEGER_AMOUNT) {
         if (fabs(amount - round(amount)) <= RANGE) {
-            return round(amount);
+            return true;
         }
-        return INVALID_AMOUNT;
+        return false;
     } else if (type == MATAMAZOM_HALF_INTEGER_AMOUNT) {
         if ((round(amount) - floor(amount)) == 0) {
             if (abs(amount - floor(amount) <= RANGE)) {
-                return floor(amount);
+                return true;
             } else if (fabs(amount - floor(amount) - HALF) <= RANGE) {
-                return floor(amount) + HALF;
+                return true;
             }
-            return INVALID_AMOUNT;
+            return false;
         } else if ((round(amount) - ceil(amount)) == 0) {
             if (abs(ceil(amount) - amount <= RANGE)) {
-                return ceil(amount);
+                return true;
             } else if (fabs(ceil(amount) - amount - HALF) <= RANGE) {
-                return (ceil(amount) - HALF);
+                return true;
             }
-            return INVALID_AMOUNT;
+            return false;
         }
     }
-    return INVALID_AMOUNT;
+    return false;
 }
 
 static ProductInfo findProductInfo(AmountSet set, unsigned int id) {
@@ -297,13 +296,13 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
     if (product_info == NULL) {
         return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
-    double fixed_amount = amountVerifications(amount, product_info->amountType);
-    if (fixed_amount == INVALID_AMOUNT) {
+    bool amount_check = amountVerifications(amount, product_info->amountType);
+    if (amount_check == false) {
         return MATAMAZOM_INVALID_AMOUNT;
     }
     AmountSetResult
             result = asChangeAmount(matamazom->products, product_info,
-                                    fixed_amount);
+                                    amount);
     if (result == AS_NULL_ARGUMENT) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
@@ -390,13 +389,40 @@ mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
     if (isOrderExists(matamazom, orderId) == false) {
         return MATAMAZOM_ORDER_NOT_EXIST;
     }
-    double amount_check = amountVerifications(amount, getAmountType(productId,
-                                                                    matamazom));
-    if (amount_check == INVALID_AMOUNT) {
+    if (asContains(matamazom->products, findProductInfo(matamazom->products,
+                                                        productId)) == false) {
+        return MATAMAZOM_PRODUCT_NOT_EXIST;
+    }
+    bool amount_check = amountVerifications(amount, getAmountType(productId,
+                                                                  matamazom));
+    if (amount_check == false) {
         return MATAMAZOM_INVALID_AMOUNT;
     }
+    if (amount == 0) {
+        return MATAMAZOM_SUCCESS;
+    }
+    double outamount;
 
-    double amount_after_change = as
-
+    Order order_ptr = getOrder(matamazom, orderId);
+    ProductInfo info = findProductInfo(order_ptr->cart, productId);
+    asGetAmount(order_ptr->cart, info, &outamount);
+    double amount_after_change = outamount + amount;
+    if (amount_after_change > 0) {
+        if (asContains(order_ptr->cart, info)) {
+            asChangeAmount(order_ptr->cart, info, amount);
+            return MATAMAZOM_SUCCESS;
+        }
+        asRegister(order_ptr->cart, (ASElement) info);
+        asChangeAmount(order_ptr->cart, info, amount);
+        return MATAMAZOM_SUCCESS;
+    } else if (amount_after_change <= 0) {
+        asDelete(order_ptr->cart, info);
+        return MATAMAZOM_SUCCESS;
+    }
 }
 
+MatamazomResult
+mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, FILE *output) {
+
+
+}
