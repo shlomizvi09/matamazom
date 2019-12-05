@@ -19,7 +19,7 @@ typedef struct productInformation_t {
   MatamazomAmountType amountType;
   unsigned int id;
   char *name;
-  unsigned int total_income;
+  double total_income;
 } *ProductInfo;
 
 typedef struct order_t {
@@ -56,7 +56,7 @@ static Order getOrder(Matamazom matamazom, const unsigned int orderId) {
   return NULL;
 }
 
-static double amountVerifications(double amount, MatamazomAmountType type) {
+static double isAmountValid(double amount, MatamazomAmountType type) {
   if (amount < 0) {
     return INVALID_AMOUNT;
   }
@@ -285,7 +285,7 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
     if (product_info == NULL) {
         return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
-    double fixed_amount = amountVerifications(amount, product_info->amountType);
+    double fixed_amount = isAmountValid(amount, product_info->amountType);
     if (fixed_amount == INVALID_AMOUNT) {
         return MATAMAZOM_INVALID_AMOUNT;
     }
@@ -473,8 +473,8 @@ mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
                                                         productId)) == false) {
         return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
-    bool amount_check = amountVerifications(amount, getAmountType(productId,
-                                                                  matamazom));
+    bool amount_check = isAmountValid(amount, getAmountType(productId,
+                                                            matamazom));
     if (amount_check == false) {
         return MATAMAZOM_INVALID_AMOUNT;
     }
