@@ -37,6 +37,10 @@ type) {
     return false;
 }
 
+typedef struct warehouse_t{
+
+};
+
 int main() {
     printf("amount is :%d",amountVerifications(3.0000666,
             MATAMAZOM_INTEGER_AMOUNT));
