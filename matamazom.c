@@ -31,6 +31,19 @@ struct Matamazom_t {
     List orders;
 };
 
+static bool isOrderExists(Matamazom matamazom,const unsigned int orderId){
+    if(matamazom==NULL){
+        return false;
+    }
+    bool order_exists = false;
+    LIST_FOREACH(Order, iteraor, matamazom->orders) {
+        if (iteraor->order_id == orderId) {
+            order_exists = true;
+        }
+    }
+    return order_exists;
+}
+
 static double amountVerifications(double amount, MatamazomAmountType type) {
     if (amount < 0) {
         return INVALID_AMOUNT;
@@ -75,6 +88,12 @@ static ProductInfo findProductInfo(AmountSet set, unsigned int id) {
     }
     asGetFirst(set); //product's iterator back to start
     return iterator;
+}
+
+static MatamazomAmountType getAmountType(const unsigned int productId, Matamazom
+matamazom) {
+    ProductInfo info = findProductInfo(matamazom->products, productId);
+    return info->amountType;
 }
 
 static bool isNameValid(const char *name) {
@@ -282,7 +301,7 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
         return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
     if (result == AS_INSUFFICIENT_AMOUNT) {
-        return  MATAMAZOM_INSUFFICIENT_AMOUNT;
+        return MATAMAZOM_INSUFFICIENT_AMOUNT;
     }
     assert(result == AS_SUCCESS);
     return MATAMAZOM_SUCCESS;
@@ -296,19 +315,19 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
     if (id_ptr == NULL) {
         return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
-    freeProductInfo(id_ptr);
-    asDelete(id_ptr);
+    freeProductInfo((ASElement) id_ptr);
+    asDelete(matamazom->products, (ASElement) id_ptr);
     LIST_FOREACH(Order, element, matamazom->orders) {
-        id_ptr=findProductInfo(element->cart,id);
-        if(id_ptr!=NULL){
-            freeProductInfo(id_ptr);
-            assert(asDelete(element->cart,id_ptr)!=AS_NULL_ARGUMENT);
+        id_ptr = findProductInfo(element->cart, id);
+        if (id_ptr != NULL) {
+            freeProductInfo((ASElement) id_ptr);
+            assert(asDelete(element->cart, (ASElement) id_ptr) !=
+                   AS_NULL_ARGUMENT);
         }
 
     }
     return MATAMAZOM_SUCCESS;
 }
-
 
 unsigned int mtmCreateNewOrder(Matamazom matamazom) {
     if (matamazom == NULL) {
@@ -316,3 +335,19 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
     }
 
 }
+
+MatamazomResult
+mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
+                              const unsigned int productId,
+                              const double amount) {
+    if (matamazom == NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    if(isOrderExists(matamazom,orderId)==false){
+        return MATAMAZOM_ORDER_NOT_EXIST;
+    }
+    ProductInfo info=findProductInfo()
+    double amount_check = amountVerifications(amount, getAmountType(productId,
+                                                                    matamazom));
+}
+
