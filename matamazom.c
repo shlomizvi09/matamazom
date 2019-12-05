@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include "matamazom_print.h"
 
 #define HALF 0.5
 #define RANGE 0.001
@@ -391,7 +392,34 @@ MatamazomResult mtmCancelOrder(Matamazom matamazom,
   return MATAMAZOM_SUCCESS;
 }
 
-MatamazomResult
+MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
+  if (matamazom == NULL || output == NULL) {
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  ProductInfo product = (ProductInfo) asGetFirst(matamazom->products);
+  if (product == NULL) {
+    //if products is empty
+    fprintf(output, "Inventory Status:");
+    return MATAMAZOM_SUCCESS;
+  }
+  double amount = 0;
+  while (product != NULL) {
+    AmountSetResult result = asGetAmount(matamazom->products, product, &amount);
+    if (result == AS_NULL_ARGUMENT) {
+      return MATAMAZOM_NULL_ARGUMENT;
+    }
+    double product_price = product->prodPrice(product->customData, 1);
+    mtmPrintProductDetails(product->name,
+                           product->id,
+                           amount,
+                           product_price,
+                           output);
+    product = asGetNext(matamazom->products);
+  }
+  return MATAMAZOM_SUCCESS;
+}
+
+/*MatamazomResult
 mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
                               const unsigned int productId,
                               const double amount) {
@@ -409,5 +437,5 @@ mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
 
   double amount_after_change = as
 
-}
+}*/
 
