@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include "matamazom_print.h"
 
 #define HALF 0.5
 #define RANGE 0.001
@@ -441,3 +442,4 @@ mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, FILE *output) {
 
 
 }
+
