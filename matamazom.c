@@ -346,8 +346,13 @@ mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
     if(isOrderExists(matamazom,orderId)==false){
         return MATAMAZOM_ORDER_NOT_EXIST;
     }
-    ProductInfo info=findProductInfo()
-    double amount_check = amountVerifications(amount, getAmountType(productId,
-                                                                    matamazom));
+    ProductInfo info=findProductInfo(matamazom->products,productId);
+    double amount_check = amountVerifications(amount,getAmountType(productId,
+            matamazom));
+    if(amount_check==INVALID_AMOUNT){
+        return MATAMAZOM_INVALID_AMOUNT;
+    }
+    double amount_after_change= asGetAmount()
+
 }
 
