@@ -98,7 +98,7 @@ void freeProductInfo(ASElement product_info) {
     ((ProductInfo) product_info)->freeData(
             ((ProductInfo) product_info)->customData);
     free(((ProductInfo) product_info)->name);
-
+    free(product_info);
 }
 
 void freeOrders(ListElement element) {
@@ -108,6 +108,7 @@ void freeOrders(ListElement element) {
     Order order = (Order) element;
     asDestroy(order->cart);
     free(order);
+
 }
 
 ASElement copyProductInfo(ASElement product_info) {
