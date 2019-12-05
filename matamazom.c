@@ -32,34 +32,34 @@ struct Matamazom_t {
 };
 
 static double amountVerifications(double amount, MatamazomAmountType type) {
-    if (amount < 0) {
-        return INVALID_AMOUNT;
-    }
-    if (type == MATAMAZOM_ANY_AMOUNT) {
-        return amount;
-    } else if (type == MATAMAZOM_INTEGER_AMOUNT) {
-        if (fabs(amount - round(amount)) <= RANGE) {
-            return round(amount);
-        }
-        return INVALID_AMOUNT;
-    } else if (type == MATAMAZOM_HALF_INTEGER_AMOUNT) {
-        if ((round(amount) - floor(amount)) == 0) {
-            if (abs(amount - floor(amount) <= RANGE)) {
-                return floor(amount);
-            } else if (fabs(amount - floor(amount) - HALF) <= RANGE) {
-                return floor(amount) + HALF;
-            }
-            return INVALID_AMOUNT;
-        } else if ((round(amount) - ceil(amount)) == 0) {
-            if (abs(ceil(amount) - amount <= RANGE)) {
-                return ceil(amount);
-            } else if (fabs(ceil(amount) - amount - HALF) <= RANGE) {
-                return (ceil(amount) - HALF);
-            }
-            return INVALID_AMOUNT;
-        }
+  if (amount < 0) {
+    return INVALID_AMOUNT;
+  }
+  if (type == MATAMAZOM_ANY_AMOUNT) {
+    return amount;
+  } else if (type == MATAMAZOM_INTEGER_AMOUNT) {
+    if (fabs(amount - round(amount)) <= RANGE) {
+      return round(amount);
     }
     return INVALID_AMOUNT;
+  } else if (type == MATAMAZOM_HALF_INTEGER_AMOUNT) {
+    if ((round(amount) - floor(amount)) == 0) {
+      if (abs(amount - floor(amount) <= RANGE)) {
+        return floor(amount);
+      } else if (fabs(amount - floor(amount) - HALF) <= RANGE) {
+        return floor(amount) + HALF;
+      }
+      return INVALID_AMOUNT;
+    } else if ((round(amount) - ceil(amount)) == 0) {
+      if (abs(ceil(amount) - amount <= RANGE)) {
+        return ceil(amount);
+      } else if (fabs(ceil(amount) - amount - HALF) <= RANGE) {
+        return (ceil(amount) - HALF);
+      }
+      return INVALID_AMOUNT;
+    }
+  }
+  return INVALID_AMOUNT;
 }
 
 static ProductInfo findProductInfo(Matamazom matamazom, unsigned int id) {
@@ -223,13 +223,14 @@ MatamazomResult mtmNewProduct(Matamazom matamazom,
   }
   new_product->name = strcpy(new_product->name, name);
 
-  if (asContains(matamazom->products, new_product)) {
+  if (asContains(matamazom->products, (ASElement) new_product)) {
     new_product->freeData(new_product->customData);
     free(new_product->name);
     free(new_product);
     return MATAMAZOM_PRODUCT_ALREADY_EXIST;
   }
-  AmountSetResult result = asRegister(matamazom->products, new_product);
+  AmountSetResult
+      result = asRegister(matamazom->products, (ASElement) new_product);
   if (result == AS_NULL_ARGUMENT) {
     new_product->freeData(new_product->customData);
     free(new_product->name);
@@ -297,5 +298,39 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
   if (matamazom == NULL) {
     return 0;
   }
+  unsigned int order_id = 0;
+  Order current_order = (Order) listGetFirst(matamazom->orders);
+  if (current_order == NULL) {
+    order_id = 1; // if list is empty
+  } else {
+    Order next_order = (Order) listGetNext(matamazom->orders);
+    while (next_order != NULL) {
+      current_order = next_order;
+      next_order = (Order) listGetNext(matamazom->orders);
+    }
+    order_id = current_order->order_id + 1;
+  }
+  current_order = (Order) malloc(sizeof(*current_order));
+  if (current_order == NULL) {
+    return 0;
+  }
+  current_order->order_id = order_id;
+  current_order->cart =
+      asCreate(copyProductInfo, freeProduct, compareProductsID);
+  if (current_order->cart == NULL) {
+    free(current_order);
+    return 0;
+  }
+  return order_id;
+}
 
+MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
+
+}
+
+MatamazomResult mtmCancelOrder(Matamazom matamazom,
+                               const unsigned int orderId) {
+  if (matamazom == NULL) {
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
 }
