@@ -5,7 +5,6 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
-#include "matamazom_print.h"
 
 #define HALF 0.5
 #define RANGE 0.001
@@ -423,19 +422,43 @@ MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
 mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
                               const unsigned int productId,
                               const double amount) {
-  if (matamazom == NULL) {
-    return MATAMAZOM_NULL_ARGUMENT;
-  }
-  if (isOrderExists(matamazom, orderId) == false) {
-    return MATAMAZOM_ORDER_NOT_EXIST;
-  }
-  double amount_check = amountVerifications(amount, getAmountType(productId,
+    if (matamazom == NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    if (isOrderExists(matamazom, orderId) == false) {
+        return MATAMAZOM_ORDER_NOT_EXIST;
+    }
+    if (asContains(matamazom->products, findProductInfo(matamazom->products,
+                                                        productId)) == false) {
+        return MATAMAZOM_PRODUCT_NOT_EXIST;
+    }
+    bool amount_check = amountVerifications(amount, getAmountType(productId,
                                                                   matamazom));
-  if (amount_check == INVALID_AMOUNT) {
-    return MATAMAZOM_INVALID_AMOUNT;
-  }
+    if (amount_check == false) {
+        return MATAMAZOM_INVALID_AMOUNT;
+    }
+    if (amount == 0) {
+        return MATAMAZOM_SUCCESS;
+    }
+    double outamount;
 
-  double amount_after_change = as
+    Order order_ptr = getOrder(matamazom, orderId);
+    ProductInfo info = findProductInfo(order_ptr->cart, productId);
+    asGetAmount(order_ptr->cart, info, &outamount);
+    double amount_after_change = outamount + amount;
+    if (amount_after_change > 0) {
+        if (asContains(order_ptr->cart, info)) {
+            asChangeAmount(order_ptr->cart, info, amount);
+            return MATAMAZOM_SUCCESS;
+        }
+        asRegister(order_ptr->cart, (ASElement) info);
+        asChangeAmount(order_ptr->cart, info, amount);
+        return MATAMAZOM_SUCCESS;
+    } else if (amount_after_change <= 0) {
+        asDelete(order_ptr->cart, info);
+        return MATAMAZOM_SUCCESS;
+    }
+}
 
-}*/
-
+MatamazomResult
+mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, FILE *output) {
