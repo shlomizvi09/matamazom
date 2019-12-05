@@ -56,7 +56,7 @@ static Order getOrder(Matamazom matamazom, const unsigned int orderId) {
   return NULL;
 }
 
-static bool amountVerifications(double amount_to_change, MatamazomAmountType
+static bool isAmountValid(double amount_to_change, MatamazomAmountType
 type) {
     double amount=fabs(amount_to_change);
     if (type == MATAMAZOM_ANY_AMOUNT) {
