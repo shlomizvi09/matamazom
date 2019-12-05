@@ -31,69 +31,68 @@ struct Matamazom_t {
   List orders;
 };
 
-static bool isOrderExists(Matamazom matamazom,const unsigned int orderId){
-    if(matamazom==NULL){
-        return false;
+static bool isOrderExists(Matamazom matamazom, const unsigned int orderId) {
+  if (matamazom == NULL) {
+    return false;
+  }
+  LIST_FOREACH(Order, iteraor, matamazom->orders) {
+    if (iteraor->order_id == orderId) {
+      return true;
     }
-    bool order_exists = false;
-    LIST_FOREACH(Order, iteraor, matamazom->orders) {
-        if (iteraor->order_id == orderId) {
-            order_exists = true;
-        }
-    }
-    return order_exists;
+  }
+  return false;
 }
 
 static double amountVerifications(double amount, MatamazomAmountType type) {
-    if (amount < 0) {
-        return INVALID_AMOUNT;
-    }
-    if (type == MATAMAZOM_ANY_AMOUNT) {
-        return amount;
-    } else if (type == MATAMAZOM_INTEGER_AMOUNT) {
-        if (fabs(amount - round(amount)) <= RANGE) {
-            return round(amount);
-        }
-        return INVALID_AMOUNT;
-    } else if (type == MATAMAZOM_HALF_INTEGER_AMOUNT) {
-        if ((round(amount) - floor(amount)) == 0) {
-            if (abs(amount - floor(amount) <= RANGE)) {
-                return floor(amount);
-            } else if (fabs(amount - floor(amount) - HALF) <= RANGE) {
-                return floor(amount) + HALF;
-            }
-            return INVALID_AMOUNT;
-        } else if ((round(amount) - ceil(amount)) == 0) {
-            if (abs(ceil(amount) - amount <= RANGE)) {
-                return ceil(amount);
-            } else if (fabs(ceil(amount) - amount - HALF) <= RANGE) {
-                return (ceil(amount) - HALF);
-            }
-            return INVALID_AMOUNT;
-        }
+  if (amount < 0) {
+    return INVALID_AMOUNT;
+  }
+  if (type == MATAMAZOM_ANY_AMOUNT) {
+    return amount;
+  } else if (type == MATAMAZOM_INTEGER_AMOUNT) {
+    if (fabs(amount - round(amount)) <= RANGE) {
+      return round(amount);
     }
     return INVALID_AMOUNT;
+  } else if (type == MATAMAZOM_HALF_INTEGER_AMOUNT) {
+    if ((round(amount) - floor(amount)) == 0) {
+      if (abs(amount - floor(amount) <= RANGE)) {
+        return floor(amount);
+      } else if (fabs(amount - floor(amount) - HALF) <= RANGE) {
+        return floor(amount) + HALF;
+      }
+      return INVALID_AMOUNT;
+    } else if ((round(amount) - ceil(amount)) == 0) {
+      if (abs(ceil(amount) - amount <= RANGE)) {
+        return ceil(amount);
+      } else if (fabs(ceil(amount) - amount - HALF) <= RANGE) {
+        return (ceil(amount) - HALF);
+      }
+      return INVALID_AMOUNT;
+    }
+  }
+  return INVALID_AMOUNT;
 }
 
 static ProductInfo findProductInfo(AmountSet set, unsigned int id) {
-    ASElement iterator = asGetFirst(set);
+  ASElement iterator = asGetFirst(set);
+  if (iterator == NULL) {
+    return NULL;
+  }
+  while (((ProductInfo) iterator)->id != id) {
+    iterator = asGetNext(set);
     if (iterator == NULL) {
-        return NULL;
+      return NULL;
     }
-    while (((ProductInfo) iterator)->id != id) {
-        iterator = asGetNext(set);
-        if (iterator == NULL) {
-            return NULL;
-        }
-    }
-    asGetFirst(set); //product's iterator back to start
-    return iterator;
+  }
+  asGetFirst(set); //product's iterator back to start
+  return iterator;
 }
 
 static MatamazomAmountType getAmountType(const unsigned int productId, Matamazom
 matamazom) {
-    ProductInfo info = findProductInfo(matamazom->products, productId);
-    return info->amountType;
+  ProductInfo info = findProductInfo(matamazom->products, productId);
+  return info->amountType;
 }
 
 static bool isNameValid(const char *name) {
@@ -275,53 +274,53 @@ MatamazomResult mtmNewProduct(Matamazom matamazom,
 MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
                                        const unsigned int id,
                                        const double amount) {
-    if (matamazom == NULL) {
-        return MATAMAZOM_NULL_ARGUMENT;
-    }
-    ProductInfo product_info = findProductInfo(matamazom->products, id);
-    if (product_info == NULL) {
-        return MATAMAZOM_PRODUCT_NOT_EXIST;
-    }
-    double fixed_amount = amountVerifications(amount, product_info->amountType);
-    if (fixed_amount == INVALID_AMOUNT) {
-        return MATAMAZOM_INVALID_AMOUNT;
-    }
-    AmountSetResult
-            result = asChangeAmount(matamazom->products, product_info,
-                                    fixed_amount);
-    if (result == AS_NULL_ARGUMENT) {
-        return MATAMAZOM_NULL_ARGUMENT;
-    }
-    if (result == AS_ITEM_DOES_NOT_EXIST) {
-        return MATAMAZOM_PRODUCT_NOT_EXIST;
-    }
-    if (result == AS_INSUFFICIENT_AMOUNT) {
-        return MATAMAZOM_INSUFFICIENT_AMOUNT;
-    }
-    assert(result == AS_SUCCESS);
-    return MATAMAZOM_SUCCESS;
+  if (matamazom == NULL) {
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  ProductInfo product_info = findProductInfo(matamazom->products, id);
+  if (product_info == NULL) {
+    return MATAMAZOM_PRODUCT_NOT_EXIST;
+  }
+  double fixed_amount = amountVerifications(amount, product_info->amountType);
+  if (fixed_amount == INVALID_AMOUNT) {
+    return MATAMAZOM_INVALID_AMOUNT;
+  }
+  AmountSetResult
+      result = asChangeAmount(matamazom->products, product_info,
+                              fixed_amount);
+  if (result == AS_NULL_ARGUMENT) {
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  if (result == AS_ITEM_DOES_NOT_EXIST) {
+    return MATAMAZOM_PRODUCT_NOT_EXIST;
+  }
+  if (result == AS_INSUFFICIENT_AMOUNT) {
+    return MATAMAZOM_INSUFFICIENT_AMOUNT;
+  }
+  assert(result == AS_SUCCESS);
+  return MATAMAZOM_SUCCESS;
 }
 
 MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
-    if (matamazom == NULL) {
-        return MATAMAZOM_NULL_ARGUMENT;
+  if (matamazom == NULL) {
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  ProductInfo id_ptr = findProductInfo(matamazom->products, id);
+  if (id_ptr == NULL) {
+    return MATAMAZOM_PRODUCT_NOT_EXIST;
+  }
+  freeProduct((ASElement) id_ptr);
+  asDelete(matamazom->products, (ASElement) id_ptr);
+  LIST_FOREACH(Order, element, matamazom->orders) {
+    id_ptr = findProductInfo(element->cart, id);
+    if (id_ptr != NULL) {
+      freeProduct((ASElement) id_ptr);
+      assert(asDelete(element->cart, (ASElement) id_ptr) !=
+          AS_NULL_ARGUMENT);
     }
-    ProductInfo id_ptr = findProductInfo(matamazom->products, id);
-    if (id_ptr == NULL) {
-        return MATAMAZOM_PRODUCT_NOT_EXIST;
-    }
-    freeProductInfo((ASElement) id_ptr);
-    asDelete(matamazom->products, (ASElement) id_ptr);
-    LIST_FOREACH(Order, element, matamazom->orders) {
-        id_ptr = findProductInfo(element->cart, id);
-        if (id_ptr != NULL) {
-            freeProductInfo((ASElement) id_ptr);
-            assert(asDelete(element->cart, (ASElement) id_ptr) !=
-                   AS_NULL_ARGUMENT);
-        }
 
-    }
-    return MATAMAZOM_SUCCESS;
+  }
+  return MATAMAZOM_SUCCESS;
 }
 
 unsigned int mtmCreateNewOrder(Matamazom matamazom) {
@@ -363,20 +362,24 @@ MatamazomResult mtmCancelOrder(Matamazom matamazom,
   if (matamazom == NULL) {
     return MATAMAZOM_NULL_ARGUMENT;
   }
+  if (!isOrderExists(matamazom, orderId)) {
+    return MATAMAZOM_ORDER_NOT_EXIST;
+  }
+
 }
 
 MatamazomResult
 mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
                               const unsigned int productId,
                               const double amount) {
-    if (matamazom == NULL) {
-        return MATAMAZOM_NULL_ARGUMENT;
-    }
-    if(isOrderExists(matamazom,orderId)==false){
-        return MATAMAZOM_ORDER_NOT_EXIST;
-    }
-    ProductInfo info=findProductInfo()
-    double amount_check = amountVerifications(amount, getAmountType(productId,
-                                                                    matamazom));
+  if (matamazom == NULL) {
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  if (isOrderExists(matamazom, orderId) == false) {
+    return MATAMAZOM_ORDER_NOT_EXIST;
+  }
+  ProductInfo info = findProductInfo()
+  double amount_check = amountVerifications(amount, getAmountType(productId,
+                                                                  matamazom));
 }
 
