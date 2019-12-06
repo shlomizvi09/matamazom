@@ -138,6 +138,7 @@ void freeOrders(ListElement element) {
     Order order = (Order) element;
     asDestroy(order->cart);
     free(order);
+
 }
 
 ASElement copyProductInfo(ASElement element) {
@@ -426,7 +427,7 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
 
 MatamazomResult mtmCancelOrder(Matamazom matamazom,
                                const unsigned int orderId) {
-    if (matamazom == NULL || matamazom->orders) {
+    if (matamazom == NULL || matamazom->orders==NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
     if (!isOrderExists(matamazom, orderId)) {
@@ -437,12 +438,15 @@ MatamazomResult mtmCancelOrder(Matamazom matamazom,
     if (order == NULL) {
         return MATAMAZOM_ORDER_NOT_EXIST;
     } // item exist, pointer shouldn't be NULL
+    assert(order==listGetCurrent(matamazom->orders));
+
     ListResult result = listRemoveCurrent(matamazom->orders);
     if (result != LIST_SUCCESS) {
         return MATAMAZOM_PRODUCT_NOT_EXIST;
         //orders isn't NULL, checked at the beginning
         //listRemove should succeed, this is just for safety
     }
+
     return MATAMAZOM_SUCCESS;
 }
 
