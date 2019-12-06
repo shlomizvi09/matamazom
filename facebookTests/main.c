@@ -333,7 +333,8 @@ int main(){
     //checking the MATAMAZOM_ORDER_NOT_EXIST case:
     assert(MATAMAZOM_ORDER_NOT_EXIST==mtmChangeProductAmountInOrder(mtm,
           order,2,1211));
-    assert(MATAMAZOM_SUCCESS==mtmChangeProductAmountInOrder(mtm,order2,2,1211));
+    assert(MATAMAZOM_SUCCESS==mtmChangeProductAmountInOrder(mtm,order2,2,
+           1211));
     assert(MATAMAZOM_SUCCESS==mtmCancelOrder(mtm,order2));
     assert(MATAMAZOM_ORDER_NOT_EXIST==mtmChangeProductAmountInOrder(mtm,order2,2,12));
     assert(MATAMAZOM_SUCCESS==mtmChangeProductAmountInOrder(mtm, order3,2,1211));

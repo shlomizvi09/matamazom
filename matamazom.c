@@ -332,35 +332,35 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
 }
 
 unsigned int mtmCreateNewOrder(Matamazom matamazom) {
-  if (matamazom == NULL) {
-    return 0;
-  }
-  unsigned int max_id = 0;
-  Order current_order = (Order) listGetFirst(matamazom->orders);
-  while (current_order != NULL) {
-    max_id =
-        current_order->order_id > max_id ? current_order->order_id : max_id;
-    current_order = (Order) listGetNext(matamazom->orders);
-  }
-  current_order = (Order) malloc(sizeof(*current_order));
-  if (current_order == NULL) {
-    return 0;
-  }
-  current_order->order_id = max_id + 1;
-  current_order->cart =
-      asCreate(copyProductInfo, freeProduct, compareProductsID);
-  if (current_order->cart == NULL) {
+    if (matamazom == NULL) {
+        return 0;
+    }
+    unsigned int max_id = 2;
+    Order current_order = (Order) listGetFirst(matamazom->orders);
+    while (current_order != NULL) {
+        max_id =
+                current_order->order_id > max_id ? current_order->order_id : max_id;
+        current_order = (Order) listGetNext(matamazom->orders);
+    }
+    current_order = (Order) malloc(sizeof(*current_order));
+    if (current_order == NULL) {
+        return 0;
+    }
+    current_order->order_id = max_id + 1;
+    current_order->cart =
+            asCreate(copyProductInfo, freeProduct, compareProductsID);
+    if (current_order->cart == NULL) {
+        free(current_order);
+        return 0;
+    }
+    ListResult
+            result = listInsertLast(matamazom->orders, (ListElement) current_order);
+    asDestroy(current_order->cart);
     free(current_order);
-    return 0;
-  }
-  ListResult
-      result = listInsertLast(matamazom->orders, (ListElement) current_order);
-  asDestroy(current_order->cart);
-  free(current_order);
-  if (result == LIST_OUT_OF_MEMORY || result == LIST_NULL_ARGUMENT) {
-    return 0;
-  }
-  return max_id + 1;
+    if (result == LIST_OUT_OF_MEMORY || result == LIST_NULL_ARGUMENT) {
+        return 0;
+    }
+    return max_id + 1;
 }
 
 MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
