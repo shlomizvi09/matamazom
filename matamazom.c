@@ -491,7 +491,7 @@ mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
   double outamount = 0;
 
   Order order_ptr = getOrder(matamazom, orderId);
-  ProductInfo product_info = findProductInfo(order_ptr->cart, productId);
+  ProductInfo product_info = findProductInfo(matamazom->products, productId);
   asGetAmount(order_ptr->cart, product_info, &outamount);
   double amount_after_change = outamount + amount;
   if (amount_after_change > 0) {
@@ -510,7 +510,7 @@ mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
 
 MatamazomResult
 mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, FILE *output) {
-  if (matamazom == NULL) {
+  if (matamazom == NULL || output == NULL) {
     return MATAMAZOM_NULL_ARGUMENT;
   }
   if (isOrderExists(matamazom, orderId) == false) {
@@ -570,7 +570,7 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
 MatamazomResult
 mtmPrintFiltered(Matamazom matamazom, MtmFilterProduct customFilter,
                  FILE *output) {
-  if (matamazom == NULL) {
+  if (matamazom == NULL || output == NULL || customFilter == NULL) {
     return MATAMAZOM_NULL_ARGUMENT;
   }
   double price_of_each = 0;
