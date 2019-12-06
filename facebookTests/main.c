@@ -6,16 +6,16 @@
 #include "../matamazom.h"
 
 
-#define INVENTORY_OUT_FILE "F:/Technion/Semester c/Matam/HW1/matamazom-master/facebookTests/printed_inventory_safi_test.txt"
-#define INVENTORY_OUT_FILE3 "F:/Technion/Semester c/Matam/HW1/matamazom-master/facebookTests/printed_inventory_safi_test3.txt"
-#define INVENTORY_OUT_FILE4 "F:/Technion/Semester c/Matam/HW1/matamazom-master/facebookTests/printed_inventory_safi_test4.txt"
-#define ORDER_OUT_FILE "F:/Technion/Semester c/Matam/HW1/matamazom-master/facebookTests/printed_order_safi_test.txt"
-#define ORDER_OUT_FILE3 "F:/Technion/Semester c/Matam/HW1/matamazom-master/facebookTests/printed_order_safi_test3.txt"
-#define BEST_SELLING_OUT_FILE "F:/Technion/Semester c/Matam/HW1/matamazom-master/facebookTests/printed_best_selling_safitest.txt"
-#define BEST_SELLING_OUT_FILE3  "F:/Technion/Semester c/Matam/HW1/matamazom-master/facebookTests/printed_best_selling_safitest3.txt"
-#define FILTERED_OUT_FILE "F:/Technion/Semester c/Matam/HW1/matamazom-master/facebookTests/printed_filtered_safitest.txt"
-#define FILTERED_OUT_FILE3 "F:/Technion/Semester c/Matam/HW1/matamazom-master/facebookTests/printed_filtered_safitest3.txt"
-#define FILTERED_OUT_FILE4 "F:/Technion/Semester c/Matam/HW1/matamazom-master/facebookTests/printed_filtered_safitest4.txt"
+#define INVENTORY_OUT_FILE "C:/Users/User/Technion/semester_3/Introduction to System's Programing/Homework/ex1/matamazom/facebookTests/printed_inventory_safi_test.txt"
+#define INVENTORY_OUT_FILE3 "C:/Users/User/Technion/semester_3/Introduction to System's Programing/Homework/ex1/matamazom/facebookTests/printed_inventory_safi_test3.txt"
+#define INVENTORY_OUT_FILE4 "C:/Users/User/Technion/semester_3/Introduction to System's Programing/Homework/ex1/matamazom/facebookTests/printed_inventory_safi_test4.txt"
+#define ORDER_OUT_FILE "C:/Users/User/Technion/semester_3/Introduction to System's Programing/Homework/ex1/matamazom/facebookTests/printed_order_safi_test.txt"
+#define ORDER_OUT_FILE3 "C:/Users/User/Technion/semester_3/Introduction to System's Programing/Homework/ex1/matamazom/facebookTests/printed_order_safi_test3.txt"
+#define BEST_SELLING_OUT_FILE "C:/Users/User/Technion/semester_3/Introduction to System's Programing/Homework/ex1/matamazom/facebookTests/printed_best_selling_safitest.txt"
+#define BEST_SELLING_OUT_FILE3  "C:/Users/User/Technion/semester_3/Introduction to System's Programing/Homework/ex1/matamazom/facebookTests/printed_best_selling_safitest3.txt"
+#define FILTERED_OUT_FILE "C:/Users/User/Technion/semester_3/Introduction to System's Programing/Homework/ex1/matamazom/facebookTests/printed_filtered_safitest.txt"
+#define FILTERED_OUT_FILE3 "C:/Users/User/Technion/semester_3/Introduction to System's Programing/Homework/ex1/matamazom/facebookTests/printed_filtered_safitest3.txt"
+#define FILTERED_OUT_FILE4 "C:/Users/User/Technion/semester_3/Introduction to System's Programing/Homework/ex1/matamazom/facebookTests/printed_filtered_safitest4.txt"
 
 #define TEST_END(test)                   \
         printf( #test " working YAHOOOOoooo\n "); \
