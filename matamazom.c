@@ -9,7 +9,6 @@
 
 #define HALF 0.5
 #define RANGE 0.001
-#define INVALID_AMOUNT -1
 
 typedef struct productInformation_t {
   MtmProductData customData;
@@ -336,23 +335,18 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
   if (matamazom == NULL) {
     return 0;
   }
-  unsigned int order_id = 0;
+  unsigned int max_id = 0;
   Order current_order = (Order) listGetFirst(matamazom->orders);
-  if (current_order == NULL) {
-    order_id = 1; // if list is empty
-  } else {
-    Order next_order = (Order) listGetNext(matamazom->orders);
-    while (next_order != NULL) {
-      current_order = next_order;
-      next_order = (Order) listGetNext(matamazom->orders);
-    }
-    order_id = current_order->order_id + 1;
+  while (current_order != NULL) {
+    max_id =
+        current_order->order_id > max_id ? current_order->order_id : max_id;
+    current_order = (Order) listGetNext(matamazom->orders);
   }
   current_order = (Order) malloc(sizeof(*current_order));
   if (current_order == NULL) {
     return 0;
   }
-  current_order->order_id = order_id;
+  current_order->order_id = max_id + 1;
   current_order->cart =
       asCreate(copyProductInfo, freeProduct, compareProductsID);
   if (current_order->cart == NULL) {
@@ -366,7 +360,7 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
   if (result == LIST_OUT_OF_MEMORY || result == LIST_NULL_ARGUMENT) {
     return 0;
   }
-  return order_id;
+  return max_id + 1;
 }
 
 MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
@@ -426,7 +420,7 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
 
 MatamazomResult mtmCancelOrder(Matamazom matamazom,
                                const unsigned int orderId) {
-  if (matamazom == NULL || matamazom->orders) {
+  if (matamazom == NULL || matamazom->orders == NULL) {
     return MATAMAZOM_NULL_ARGUMENT;
   }
   if (!isOrderExists(matamazom, orderId)) {
