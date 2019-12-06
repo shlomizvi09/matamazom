@@ -141,30 +141,31 @@ void freeOrders(ListElement element) {
 }
 
 ASElement copyProductInfo(ASElement element) {
-    if (element == NULL) {
-        return NULL;
-    }
-    ProductInfo product_info = (ProductInfo) element;
-    ProductInfo new_product_info = malloc(sizeof(*new_product_info));
-    if (new_product_info == NULL) {
-        return NULL;
-    }
-    new_product_info->customData =
-            product_info->copyData(product_info->customData);
-    new_product_info->amountType = product_info->amountType;
-    new_product_info->id = product_info->id;
-    new_product_info->name =
-            malloc(strlen(product_info->name) + 1);
-    if (new_product_info->name == NULL) {
-        freeProduct(new_product_info);
-        return NULL;
-    }
-    strcpy(new_product_info->name,product_info->name);
-    new_product_info->total_income = product_info->total_income;
-    new_product_info->copyData=product_info->copyData;
-    new_product_info->prodPrice=product_info->prodPrice;
-    new_product_info->freeData=product_info->freeData;
-    return new_product_info;
+  if (element == NULL) {
+    return NULL;
+  }
+  ProductInfo product_info = (ProductInfo) element;
+  ProductInfo new_product_info = malloc(sizeof(*new_product_info));
+  if (new_product_info == NULL) {
+    return NULL;
+  }
+  new_product_info->customData =
+      product_info->copyData(product_info->customData);
+  new_product_info->amountType = product_info->amountType;
+  new_product_info->id = product_info->id;
+  new_product_info->name =
+      malloc(strlen(product_info->name) + 1);
+  if (new_product_info->name == NULL) {
+    freeProduct(new_product_info);
+    return NULL;
+  }
+  strcpy(new_product_info->name, product_info->name);
+  new_product_info->total_income = product_info->total_income;
+  new_product_info->copyData = product_info->copyData;
+  new_product_info->prodPrice = product_info->prodPrice;
+  new_product_info->freeData = product_info->freeData;
+
+  return new_product_info;
 }
 
 ListElement copyOrder(ListElement element) {
@@ -313,39 +314,59 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
 }
 
 MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
-    if (matamazom == NULL) {
-        return MATAMAZOM_NULL_ARGUMENT;
+  if (matamazom == NULL) {
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  ProductInfo id_ptr = findProductInfo(matamazom->products, id);
+  if (id_ptr == NULL) {
+    return MATAMAZOM_PRODUCT_NOT_EXIST;
+  }
+  asDelete(matamazom->products, (ASElement) id_ptr);
+  LIST_FOREACH(Order, element, matamazom->orders) {
+    id_ptr = findProductInfo(element->cart, id);
+    if (id_ptr != NULL) {
+      asDelete(element->cart, (ASElement) id_ptr);
     }
-    ProductInfo id_ptr = findProductInfo(matamazom->products, id);
-    if (id_ptr == NULL) {
-        return MATAMAZOM_PRODUCT_NOT_EXIST;
-    }
-    asDelete(matamazom->products, (ASElement) id_ptr);
-    LIST_FOREACH(Order, element, matamazom->orders) {
-        id_ptr = findProductInfo(element->cart, id);
-        if (id_ptr != NULL) {
-            asDelete(element->cart, (ASElement) id_ptr);
-        }
 
     }
     return MATAMAZOM_SUCCESS;
 }
 
 unsigned int mtmCreateNewOrder(Matamazom matamazom) {
-    if (matamazom == NULL) {
-        return 0;
+  if (matamazom == NULL) {
+    return 0;
+  }
+  unsigned int order_id = 0;
+  Order current_order = (Order) listGetFirst(matamazom->orders);
+  if (current_order == NULL) {
+    order_id = 1; // if list is empty
+  } else {
+    Order next_order = (Order) listGetNext(matamazom->orders);
+    while (next_order != NULL) {
+      current_order = next_order;
+      next_order = (Order) listGetNext(matamazom->orders);
     }
-    unsigned int max_order_id=0
-    LIST_FOREACH(Order,iterator,matamazom->orders){
-        if(iterator!=NULL){
-            max_order_id=max(iterator->order_id,max_order_id);
-        }
-    }
-    Order new_order;
-    new_order->order_id=max_order_id+1;
-    new_order->cart=asCreate(copyProductInfo,freeProduct,compareProductsID);
-    ListResult order_result = listInsertLast()
-
+    order_id = current_order->order_id + 1;
+  }
+  current_order = (Order) malloc(sizeof(*current_order));
+  if (current_order == NULL) {
+    return 0;
+  }
+  current_order->order_id = order_id;
+  current_order->cart =
+      asCreate(copyProductInfo, freeProduct, compareProductsID);
+  if (current_order->cart == NULL) {
+    free(current_order);
+    return 0;
+  }
+  ListResult
+      result = listInsertLast(matamazom->orders, (ListElement) current_order);
+  asDestroy(current_order->cart);
+  free(current_order);
+  if (result == LIST_OUT_OF_MEMORY || result == LIST_NULL_ARGUMENT) {
+    return 0;
+  }
+  return order_id;
 }
 
 MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
