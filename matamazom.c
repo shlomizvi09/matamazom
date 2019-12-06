@@ -29,6 +29,7 @@ typedef struct order_t {
 struct Matamazom_t {
   AmountSet products;
   List orders;
+  unsigned int max_order_id;
 };
 
 static bool isOrderExists(Matamazom matamazom, const unsigned int orderId) {
@@ -203,6 +204,7 @@ Matamazom matamazomCreate() {
     free(new_warehouse);
     return NULL;
   }
+  new_warehouse->max_order_id = 0;
   return new_warehouse;
 }
 
@@ -335,14 +337,8 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
   if (matamazom == NULL) {
     return 0;
   }
-  unsigned int max_id = 0;
-  Order current_order = (Order) listGetFirst(matamazom->orders);
-  while (current_order != NULL) {
-    max_id =
-        current_order->order_id > max_id ? current_order->order_id : max_id;
-    current_order = (Order) listGetNext(matamazom->orders);
-  }
-  current_order = (Order) malloc(sizeof(*current_order));
+  unsigned int max_id = matamazom->max_order_id;
+  Order current_order = (Order) malloc(sizeof(*current_order));
   if (current_order == NULL) {
     return 0;
   }
@@ -360,6 +356,7 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
   if (result == LIST_OUT_OF_MEMORY || result == LIST_NULL_ARGUMENT) {
     return 0;
   }
+  matamazom->max_order_id = max_id + 1;
   return max_id + 1;
 }
 
@@ -420,13 +417,13 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
 
 MatamazomResult mtmCancelOrder(Matamazom matamazom,
                                const unsigned int orderId) {
-    if (matamazom == NULL || matamazom->orders==NULL) {
-        return MATAMAZOM_NULL_ARGUMENT;
-    }
-    if (!isOrderExists(matamazom, orderId)) {
-        return MATAMAZOM_ORDER_NOT_EXIST;
-    }
-    Order order = getOrder(matamazom, orderId); /*set internal iterator to the
+  if (matamazom == NULL || matamazom->orders == NULL) {
+    return MATAMAZOM_NULL_ARGUMENT;
+  }
+  if (!isOrderExists(matamazom, orderId)) {
+    return MATAMAZOM_ORDER_NOT_EXIST;
+  }
+  Order order = getOrder(matamazom, orderId); /*set internal iterator to the
  * order that needs to be canceled */
   if (order == NULL) {
     return MATAMAZOM_ORDER_NOT_EXIST;
@@ -437,6 +434,7 @@ MatamazomResult mtmCancelOrder(Matamazom matamazom,
     //orders isn't NULL, checked at the beginning
     //listRemove should succeed, this is just for safety
   }
+  assert(isOrderExists(matamazom, orderId) == false);
   return MATAMAZOM_SUCCESS;
 }
 
@@ -490,22 +488,22 @@ mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
   if (amount == 0) {
     return MATAMAZOM_SUCCESS;
   }
-  double outamount;
+  double outamount = 0;
 
   Order order_ptr = getOrder(matamazom, orderId);
-  ProductInfo info = findProductInfo(order_ptr->cart, productId);
-  asGetAmount(order_ptr->cart, info, &outamount);
+  ProductInfo product_info = findProductInfo(order_ptr->cart, productId);
+  asGetAmount(order_ptr->cart, product_info, &outamount);
   double amount_after_change = outamount + amount;
   if (amount_after_change > 0) {
-    if (asContains(order_ptr->cart, info)) {
-      asChangeAmount(order_ptr->cart, info, amount);
+    if (asContains(order_ptr->cart, product_info)) {
+      asChangeAmount(order_ptr->cart, product_info, amount);
       return MATAMAZOM_SUCCESS;
     }
-    asRegister(order_ptr->cart, (ASElement) info);
-    asChangeAmount(order_ptr->cart, info, amount);
+    asRegister(order_ptr->cart, (ASElement) product_info);
+    asChangeAmount(order_ptr->cart, product_info, amount);
     return MATAMAZOM_SUCCESS;
   } else if (amount_after_change <= 0) {
-    asDelete(order_ptr->cart, info);
+    asDelete(order_ptr->cart, product_info);
     return MATAMAZOM_SUCCESS;
   }
 }
