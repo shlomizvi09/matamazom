@@ -159,7 +159,11 @@ ASElement copyProductInfo(ASElement element) {
         freeProduct(new_product_info);
         return NULL;
     }
+    strcpy(new_product_info->name,product_info->name);
     new_product_info->total_income = product_info->total_income;
+    new_product_info->copyData=product_info->copyData;
+    new_product_info->prodPrice=product_info->prodPrice;
+    new_product_info->freeData=product_info->freeData;
     return new_product_info;
 }
 
@@ -316,14 +320,11 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
     if (id_ptr == NULL) {
         return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
-    freeProduct((ASElement) id_ptr);
     asDelete(matamazom->products, (ASElement) id_ptr);
     LIST_FOREACH(Order, element, matamazom->orders) {
         id_ptr = findProductInfo(element->cart, id);
         if (id_ptr != NULL) {
-            freeProduct((ASElement) id_ptr);
-            assert(asDelete(element->cart, (ASElement) id_ptr) !=
-                   AS_NULL_ARGUMENT);
+            asDelete(element->cart, (ASElement) id_ptr);
         }
 
     }
@@ -334,30 +335,17 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
     if (matamazom == NULL) {
         return 0;
     }
-    unsigned int order_id = 0;
-    Order current_order = (Order) listGetFirst(matamazom->orders);
-    if (current_order == NULL) {
-        order_id = 1; // if list is empty
-    } else {
-        Order next_order = (Order) listGetNext(matamazom->orders);
-        while (next_order != NULL) {
-            current_order = next_order;
-            next_order = (Order) listGetNext(matamazom->orders);
+    unsigned int max_order_id=0
+    LIST_FOREACH(Order,iterator,matamazom->orders){
+        if(iterator!=NULL){
+            max_order_id=max(iterator->order_id,max_order_id);
         }
-        order_id = current_order->order_id + 1;
     }
-    current_order = (Order) malloc(sizeof(*current_order));
-    if (current_order == NULL) {
-        return 0;
-    }
-    current_order->order_id = order_id;
-    current_order->cart =
-            asCreate(copyProductInfo, freeProduct, compareProductsID);
-    if (current_order->cart == NULL) {
-        free(current_order);
-        return 0;
-    }
-    return order_id;
+    Order new_order;
+    new_order->order_id=max_order_id+1;
+    new_order->cart=asCreate(copyProductInfo,freeProduct,compareProductsID);
+    ListResult order_result = listInsertLast()
+
 }
 
 MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
