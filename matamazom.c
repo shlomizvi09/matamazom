@@ -420,13 +420,13 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
 
 MatamazomResult mtmCancelOrder(Matamazom matamazom,
                                const unsigned int orderId) {
-  if (matamazom == NULL || matamazom->orders == NULL) {
-    return MATAMAZOM_NULL_ARGUMENT;
-  }
-  if (!isOrderExists(matamazom, orderId)) {
-    return MATAMAZOM_ORDER_NOT_EXIST;
-  }
-  Order order = getOrder(matamazom, orderId); /*set internal iterator to the
+    if (matamazom == NULL || matamazom->orders==NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    if (!isOrderExists(matamazom, orderId)) {
+        return MATAMAZOM_ORDER_NOT_EXIST;
+    }
+    Order order = getOrder(matamazom, orderId); /*set internal iterator to the
  * order that needs to be canceled */
   if (order == NULL) {
     return MATAMAZOM_ORDER_NOT_EXIST;
