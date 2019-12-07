@@ -6,18 +6,16 @@
 #include <string.h>
 #include <stdlib.h>
 
-//F:/Technion/Semester_c/Matam/HW1/matamazom-master/tests
-
-#define INVENTORY_OUT_FILE "F:/Technion/Semester_c/Matam/HW1/matamazom-master/tests/printed_inventory.txt"
-#define INVENTORY_TEST_FILE "F:/Technion/Semester_c/Matam/HW1/matamazom-master/tests/expected_inventory.txt"
-#define ORDER_OUT_FILE "F:/Technion/Semester_c/Matam/HW1/matamazom-master/tests/printed_order.txt"
-#define ORDER_TEST_FILE "F:/Technion/Semester_c/Matam/HW1/matamazom-master/tests/expected_order.txt"
-#define BEST_SELLING_OUT_FILE "F:/Technion/Semester_c/Matam/HW1/matamazom-master/tests/printed_best_selling.txt"
-#define BEST_SELLING_TEST_FILE "F:/Technion/Semester_c/Matam/HW1/matamazom-master/tests/expected_best_selling.txt"
-#define NO_SELLING_OUT_FILE "F:/Technion/Semester_c/Matam/HW1/matamazom-master/tests/printed_no_selling.txt"
-#define NO_SELLING_TEST_FILE "F:/Technion/Semester_c/Matam/HW1/matamazom-master/tests/expected_no_selling.txt"
-#define FILTERED_OUT_FILE "F:/Technion/Semester_c/Matam/HW1/matamazom-master/tests/printed_filtered.txt"
-#define FILTERED_TEST_FILE "F:/Technion/Semester_c/Matam/HW1/matamazom-master/tests/expected_filtered.txt"
+#define INVENTORY_OUT_FILE "tests/printed_inventory.txt"
+#define INVENTORY_TEST_FILE "tests/expected_inventory.txt"
+#define ORDER_OUT_FILE "tests/printed_order.txt"
+#define ORDER_TEST_FILE "tests/expected_order.txt"
+#define BEST_SELLING_OUT_FILE "tests/printed_best_selling.txt"
+#define BEST_SELLING_TEST_FILE "tests/expected_best_selling.txt"
+#define NO_SELLING_OUT_FILE "tests/printed_no_selling.txt"
+#define NO_SELLING_TEST_FILE "tests/expected_no_selling.txt"
+#define FILTERED_OUT_FILE "tests/printed_filtered.txt"
+#define FILTERED_TEST_FILE "tests/expected_filtered.txt"
 
 #define ASSERT_OR_DESTROY(expr) ASSERT_TEST_WITH_FREE((expr), matamazomDestroy(mtm))
 
