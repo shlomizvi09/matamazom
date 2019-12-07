@@ -182,7 +182,9 @@ AmountSetResult asDelete(AmountSet set, ASElement element) {
     node_before = node_to_delete;
     node_to_delete = node_to_delete->next;
   }
-  assert(node_to_delete != NULL); // because element is in the list
+  if (node_to_delete == NULL) {
+    return AS_ITEM_DOES_NOT_EXIST;
+  }
   set->as_free(node_to_delete->element);
   node_before->next = node_to_delete->next;
   free(node_to_delete);
