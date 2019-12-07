@@ -252,6 +252,7 @@ MatamazomResult mtmNewProduct(Matamazom matamazom,
   new_product->freeData = freeData;
   new_product->prodPrice = prodPrice;
   new_product->amountType = amountType;
+  new_product->total_income = 0;
   new_product->customData = new_product->copyData(customData);
   if (new_product->customData == NULL) {
     free(new_product);
@@ -502,10 +503,10 @@ mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
     asRegister(order_ptr->cart, (ASElement) product_info);
     asChangeAmount(order_ptr->cart, product_info, amount);
     return MATAMAZOM_SUCCESS;
-  } else if (amount_after_change <= 0) {
-    asDelete(order_ptr->cart, product_info);
-    return MATAMAZOM_SUCCESS;
   }
+  asDelete(order_ptr->cart, product_info);
+  return MATAMAZOM_SUCCESS;
+
 }
 
 MatamazomResult
@@ -527,7 +528,7 @@ mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, FILE *output) {
                                         amount_of_each);
     mtmPrintProductDetails(iterator->name, iterator->id, amount_of_each,
                            price_of_each, output);
-    total_price = +price_of_each;
+    total_price += price_of_each;
   }
   mtmPrintOrderSummary(total_price, output);
   return MATAMAZOM_SUCCESS;
@@ -557,7 +558,7 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
   }
   if (max_income == 0) {
     fprintf(output, "Best Selling Product:\n"
-                    "none");
+                    "none\n");
     return MATAMAZOM_SUCCESS;
   }
   fprintf(output, "Best Selling Product:\n");

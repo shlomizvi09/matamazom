@@ -49,9 +49,7 @@ void asDestroy(AmountSet set) {
   while (temp_ptr2 != NULL) {
     assert(temp_ptr2 != set->head);
 
-    if (temp_ptr2 != NULL) {
-      set->as_free(temp_ptr2->element);
-    }
+    set->as_free(temp_ptr2->element);
     temp_ptr = temp_ptr2;
     temp_ptr2 = temp_ptr2->next;
     free(temp_ptr);
@@ -75,7 +73,6 @@ bool asContains(AmountSet set, ASElement element) {
     }
   }
   return false;
-  /*assert(node_ptr);*/
 }
 
 int asGetSize(AmountSet set) {
@@ -94,16 +91,14 @@ int asGetSize(AmountSet set) {
 AmountSetResult asGetAmount(AmountSet set, ASElement element, double
 *outAmount) {
   Node node_ptr;
-  if (!set || !element || !outAmount) {
+  if (set == NULL || element == NULL || outAmount == NULL) {
     return AS_NULL_ARGUMENT;
   }
   if (asContains(set, element) == false) {
     return AS_ITEM_DOES_NOT_EXIST;
   }
   node_ptr = getElementNodePtr(set, element);
-  double tmp_amount = 0;
-  tmp_amount = node_ptr->amount;
-  *outAmount = tmp_amount;
+  *outAmount = node_ptr->amount;
   return AS_SUCCESS;
 }
 
@@ -119,8 +114,9 @@ AmountSet asCopy(AmountSet set) {
   if (node_ptr_copy_from == NULL) {
     return new_set;
   }
+  ASElement copy_of_ASElement = NULL;
   while (node_ptr_copy_from != NULL) {
-    ASElement copy_of_ASElement = set->as_copy(node_ptr_copy_from->element);
+    copy_of_ASElement = set->as_copy(node_ptr_copy_from->element);
     AmountSetResult result = asRegister(new_set,
                                         copy_of_ASElement);
     if (result == AS_NULL_ARGUMENT) {
@@ -129,15 +125,17 @@ AmountSet asCopy(AmountSet set) {
     }
     Node node_ptr_copy_to =
         getElementNodePtr(new_set,
-                          copy_of_ASElement);// TODO : if getElement return NULL ?
+                          copy_of_ASElement);
 
     assert(node_ptr_copy_to != NULL && node_ptr_copy_to->next == NULL);
+    // because the set is new and empty
     node_ptr_copy_to->amount = node_ptr_copy_from->amount;
     node_ptr_copy_from = node_ptr_copy_from->next;
   }
   Node ptr_to_first_element =
       getElementNodePtr(new_set, set->head->next->element);
   new_set->head->next = ptr_to_first_element;
+  // connects the new set to the linked list
   return new_set;
 }
 
