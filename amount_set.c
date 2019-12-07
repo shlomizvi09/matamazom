@@ -114,18 +114,16 @@ AmountSet asCopy(AmountSet set) {
   if (node_ptr_copy_from == NULL) {
     return new_set;
   }
-  ASElement copy_of_ASElement = NULL;
   while (node_ptr_copy_from != NULL) {
-    copy_of_ASElement = set->as_copy(node_ptr_copy_from->element);
     AmountSetResult result = asRegister(new_set,
-                                        copy_of_ASElement);
+                                        node_ptr_copy_from->element);
     if (result == AS_NULL_ARGUMENT) {
       asDestroy(new_set);
       return NULL;
     }
     Node node_ptr_copy_to =
         getElementNodePtr(new_set,
-                          copy_of_ASElement);
+                          node_ptr_copy_from->element);
 
     assert(node_ptr_copy_to != NULL && node_ptr_copy_to->next == NULL);
     // because the set is new and empty
